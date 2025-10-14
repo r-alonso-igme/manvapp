@@ -1,0 +1,24 @@
+{
+  "name": "manvapp",
+  "version": "1.0.0",
+  "description": "Modern web application",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=3000 --open=/index.html",
+    "dev": "live-server --port=3000 --open=/index.html --watch=.",
+    "build": "echo 'Build process - ready for production'",
+    "test": "echo 'Tests will be added here'"
+  },
+  "keywords": [
+    "web",
+    "html",
+    "css",
+    "javascript",
+    "responsive"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Modern web application">
+    <title>ManvApp - Modern Web Application</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1>ManvApp</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#scoreboard" class="nav-link">Scoreboard</a></li>
+                <li><a href="#services" class="nav-link">Services</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section id="home" class="hero">
+            <div class="container">
+                <h2 class="hero-title">Welcome to ManvApp</h2>
+                <p class="hero-subtitle">A modern web application built with HTML, CSS, and JavaScript</p>
+                <button class="btn btn-primary">Get Started</button>
+            </div>
+        </section>
+
+        <section id="about" class="section">
+            <div class="container">
+                <h2 class="section-title">About Us</h2>
+                <p class="section-content">This is a modern web application template featuring responsive design, clean code structure, and best practices.</p>
+            </div>
+        </section>
+
+        <section id="scoreboard" class="section">
+            <div class="container">
+                <h2 class="section-title">Volleyball Scoreboard</h2>
+                
+                <!-- Game Controls -->
+                <div class="game-controls">
+                    <button class="btn btn-primary" id="newGameBtn">New Match</button>
+                    <button class="btn btn-secondary" id="resetSetBtn">Reset Set</button>
+                    <button class="btn btn-secondary" id="undoBtn">Undo Last</button>
+                    <button class="btn btn-export" id="exportBtn">Export Result</button>
+                </div>
+
+                <!-- Timeout Controls -->
+                <div class="timeout-controls">
+                    <div class="timeout-section">
+                        <label>Team A Timeouts:</label>
+                        <div class="timeout-buttons">
+                            <button class="timeout-btn" onclick="addTimeout('A')">+</button>
+                            <span class="timeout-count" id="teamATimeouts">0</span>
+                            <button class="timeout-btn" onclick="removeTimeout('A')">-</button>
+                        </div>
+                    </div>
+                    <div class="timeout-indicator">
+                        <label>
+                            <input type="checkbox" id="timeoutActive"> Timeout Active
+                        </label>
+                    </div>
+                    <div class="timeout-section">
+                        <label>Team B Timeouts:</label>
+                        <div class="timeout-buttons">
+                            <button class="timeout-btn" onclick="addTimeout('B')">+</button>
+                            <span class="timeout-count" id="teamBTimeouts">0</span>
+                            <button class="timeout-btn" onclick="removeTimeout('B')">-</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Scoreboard -->
+                <div class="scoreboard">
+                    <!-- Team A -->
+                    <div class="team-section" id="teamA">
+                        <div class="team-name">
+                            <input type="text" class="team-input" id="teamAName" placeholder="Team A" value="Team A">
+                        </div>
+                        <div class="score-display">
+                            <div class="current-score" id="teamAScore">0</div>
+                            <div class="score-controls">
+                                <button class="score-btn plus" onclick="addPoint('A')">+</button>
+                                <button class="score-btn minus" onclick="removePoint('A')">-</button>
+                            </div>
+                        </div>
+                        <div class="sets-won">
+                            Sets: <span id="teamASets">0</span>
+                        </div>
+                    </div>
+
+                    <!-- VS Divider -->
+                    <div class="vs-divider">
+                        <div class="vs-text">VS</div>
+                        <div class="match-info">
+                            <div class="current-set">Set <span id="currentSet">1</span></div>
+                            <div class="match-type">
+                                <select id="matchType">
+                                    <option value="3">Best of 3</option>
+                                    <option value="5">Best of 5</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team B -->
+                    <div class="team-section" id="teamB">
+                        <div class="team-name">
+                            <input type="text" class="team-input" id="teamBName" placeholder="Team B" value="Team B">
+                        </div>
+                        <div class="score-display">
+                            <div class="current-score" id="teamBScore">0</div>
+                            <div class="score-controls">
+                                <button class="score-btn plus" onclick="addPoint('B')">+</button>
+                                <button class="score-btn minus" onclick="removePoint('B')">-</button>
+                            </div>
+                        </div>
+                        <div class="sets-won">
+                            Sets: <span id="teamBSets">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Set History -->
+                <div class="set-history">
+                    <h3>Set History</h3>
+                    <div class="history-container" id="setHistory">
+                        <!-- Set history will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Game Status -->
+                <div class="game-status" id="gameStatus">
+                    <div class="status-text">Match in Progress</div>
+                </div>
+
+                <!-- Keyboard Shortcuts Info -->
+                <div class="shortcuts-info">
+                    <h4>Keyboard Shortcuts:</h4>
+                    <p><strong>A/S</strong> - Add/Remove point for Team A | <strong>L/K</strong> - Add/Remove point for Team B | <strong>N</strong> - New Match | <strong>U</strong> - Undo</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="section">
+            <div class="container">
+                <h2 class="section-title">Our Services</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h3>Web Development</h3>
+                        <p>Modern, responsive websites</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>UI/UX Design</h3>
+                        <p>User-centered design solutions</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>Consulting</h3>
+                        <p>Technical guidance and support</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <div class="container">
+                <h2 class="section-title">Contact Us</h2>
+                <form class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 ManvApp. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
