@@ -6,6 +6,8 @@
   "scripts": {
     "start": "live-server --port=3000 --open=/index.html",
     "dev": "live-server --port=3000 --open=/index.html --watch=.",
+    "serve": "http-server -p 8080 -c-1",
+    "serve-prod": "http-server -p 8080 -c 3600",
     "build": "echo 'Build process - ready for production'",
     "test": "echo 'Tests will be added here'"
   },
