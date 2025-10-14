@@ -2,9 +2,9 @@
 
 A modern, responsive web application featuring a real-time volleyball scoreboard built with HTML, CSS, and JavaScript.
 
-## 🏐 Live Demo
+## � Live Demo
 
-**[View Live Demo](https://yourusername.github.io/manvapp)** *(Update with your GitHub username)*
+**[View Live Demo](https://r-alonso-igme.github.io/manvapp)**
 
 ## Features
 
