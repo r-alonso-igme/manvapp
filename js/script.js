@@ -691,7 +691,7 @@ class VolleyballScoreboard {
 
         modalContent.innerHTML = `
             <h3 style="margin-bottom: 1rem; color: #1e293b;">${title}</h3>
-            <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; font-family: monospace; font-size: 1.1rem; word-break: break-all;">
+            <div style="background: #b0b6bc; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; font-family: monospace; font-size: 1.1rem; word-break: break-all;">
                 ${exportString}
             </div>
             <div style="margin: 1rem 0;">
