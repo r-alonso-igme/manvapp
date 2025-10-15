@@ -256,6 +256,7 @@ class VolleyballScoreboard {
         document.getElementById('resetSetBtn').addEventListener('click', () => this.resetSet());
         document.getElementById('undoBtn').addEventListener('click', () => this.undoLastAction());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportResult());
+        document.getElementById('exportHistoryBtn').addEventListener('click', () => this.exportSetHistory());
         
         // Timeout controls
         document.getElementById('timeoutActive').addEventListener('change', (e) => {
@@ -635,7 +636,32 @@ class VolleyballScoreboard {
         this.showExportModal(exportString);
     }
 
-    showExportModal(exportString) {
+    exportSetHistory() {
+        // Format: "25:14 24:26 23:24 25:22 15:12 (3/2) [Set 5]/Final"
+        let setScores = [];
+        
+        // Add completed sets
+        this.gameState.setHistory.forEach(set => {
+            setScores.push(`${set.teamAScore}:${set.teamBScore}`);
+        });
+        
+        // Add current set if in progress (not ended)
+        if (!this.gameState.gameEnded && (this.gameState.teamA.score > 0 || this.gameState.teamB.score > 0)) {
+            setScores.push(`${this.gameState.teamA.score}:${this.gameState.teamB.score}`);
+        }
+        
+        const homeSets = this.gameState.teamA.sets;
+        const guestSets = this.gameState.teamB.sets;
+        const setScoresString = setScores.join(' ');
+        const matchStatus = this.gameState.gameEnded ? 'Final' : `Set ${this.gameState.currentSet}`;
+        
+        const exportString = `${setScoresString} (${homeSets}/${guestSets}) [${matchStatus}]`;
+        
+        // Create a modal or notification with the export string
+        this.showExportModal(exportString, 'Set History Export', 'Format: [score1] [score2] ... (sets_won) [Set X/Final]');
+    }
+
+    showExportModal(exportString, title = 'Export Result', format = '[points_home]:[points_guest] (sets_home/sets_guest) [Tiempo]') {
         // Create modal overlay
         const modal = document.createElement('div');
         modal.style.cssText = `
@@ -664,20 +690,23 @@ class VolleyballScoreboard {
         `;
 
         modalContent.innerHTML = `
-            <h3 style="margin-bottom: 1rem; color: #1e293b;">Export Result</h3>
+            <h3 style="margin-bottom: 1rem; color: #1e293b;">${title}</h3>
             <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; font-family: monospace; font-size: 1.1rem; word-break: break-all;">
                 ${exportString}
             </div>
             <div style="margin: 1rem 0;">
-                <button id="copyBtn" style="background: #2563eb; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; margin-right: 1rem; cursor: pointer;">
+                <button id="copyBtn" style="background: #2563eb; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; margin-right: 0.5rem; cursor: pointer;">
                     Copy to Clipboard
+                </button>
+                <button id="shareBtn" style="background: #10b981; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; margin-right: 0.5rem; cursor: pointer;">
+                    Share
                 </button>
                 <button id="closeModalBtn" style="background: #64748b; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; cursor: pointer;">
                     Close
                 </button>
             </div>
             <div style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
-                <strong>Format:</strong> [points_home]:[points_guest] (sets_home/sets_guest) timeout (yes/not)
+                <strong>Format:</strong> ${format}
             </div>
         `;
 
@@ -702,6 +731,10 @@ class VolleyballScoreboard {
             });
         });
 
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            this.shareToApp(exportString, title);
+        });
+
         document.getElementById('closeModalBtn').addEventListener('click', () => {
             document.body.removeChild(modal);
         });
@@ -721,6 +754,107 @@ class VolleyballScoreboard {
             }
         };
         document.addEventListener('keydown', escapeHandler);
+    }
+
+    shareToApp(text, title = 'Volleyball Match Result') {
+        // Check if Web Share API is supported
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: text
+            }).then(() => {
+                showNotification('Shared successfully!', 'success');
+            }).catch((error) => {
+                console.log('Error sharing:', error);
+                // Fallback to URL-based sharing
+                this.fallbackShare(text);
+            });
+        } else {
+            // Fallback for browsers that don't support Web Share API
+            this.fallbackShare(text);
+        }
+    }
+
+    fallbackShare(text) {
+        // Create a temporary modal with sharing options
+        const shareModal = document.createElement('div');
+        shareModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        `;
+
+        const shareContent = document.createElement('div');
+        shareContent.style.cssText = `
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        `;
+
+        const encodedText = encodeURIComponent(text);
+        
+        shareContent.innerHTML = `
+            <h3 style="margin-bottom: 1.5rem; color: #1e293b;">Share to App</h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <a href="https://wa.me/?text=${encodedText}" target="_blank" 
+                   style="background: #25d366; color: white; padding: 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                   📱 WhatsApp
+                </a>
+                <a href="https://t.me/share/url?text=${encodedText}" target="_blank"
+                   style="background: #0088cc; color: white; padding: 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                   ✈️ Telegram
+                </a>
+                <a href="mailto:?subject=Volleyball Match Result&body=${encodedText}" 
+                   style="background: #ea4335; color: white; padding: 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                   📧 Email
+                </a>
+                <a href="sms:?body=${encodedText}" 
+                   style="background: #34a853; color: white; padding: 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                   💬 SMS
+                </a>
+            </div>
+            <button id="closeFallbackBtn" style="background: #64748b; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; margin-top: 1.5rem; cursor: pointer;">
+                Close
+            </button>
+        `;
+
+        shareModal.appendChild(shareContent);
+        document.body.appendChild(shareModal);
+
+        // Add event listeners
+        document.getElementById('closeFallbackBtn').addEventListener('click', () => {
+            document.body.removeChild(shareModal);
+        });
+
+        // Close on overlay click
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                document.body.removeChild(shareModal);
+            }
+        });
+
+        // Auto-close after sharing (for links that open in same window)
+        const shareLinks = shareContent.querySelectorAll('a');
+        shareLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                setTimeout(() => {
+                    if (document.body.contains(shareModal)) {
+                        document.body.removeChild(shareModal);
+                    }
+                }, 1000);
+            });
+        });
     }
 }
 
