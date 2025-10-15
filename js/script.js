@@ -515,13 +515,18 @@ class VolleyballScoreboard {
         
         // Update timeout active status
         document.getElementById('timeoutActive').checked = this.gameState.timeoutActive;
+        
+        // Update set history and game status
+        this.updateSetHistory();
+        this.updateGameStatus();
     }
 
     updateSetHistory() {
         const historyContainer = document.getElementById('setHistory');
         historyContainer.innerHTML = '';
 
-        if (this.gameState.setHistory.length === 0) {
+        // Ensure setHistory exists and is an array
+        if (!this.gameState.setHistory || !Array.isArray(this.gameState.setHistory) || this.gameState.setHistory.length === 0) {
             historyContainer.innerHTML = '<p style="text-align: center; color: #64748b;">No sets completed yet</p>';
             return;
         }
@@ -544,7 +549,7 @@ class VolleyballScoreboard {
         if (this.gameState.gameEnded) {
             const winner = this.gameState.teamA.sets > this.gameState.teamB.sets ? 
                           this.gameState.teamA.name : this.gameState.teamB.name;
-            statusText.textContent = `🏆 ${winner} wins the match!`;
+            statusText.textContent = `🏆 ¡${winner} gana el partido!`;
             statusText.className = 'status-text match-won';
         } else {
             statusText.textContent = `Partido en Progreso - Set ${this.gameState.currentSet}`;
@@ -916,6 +921,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize volleyball scoreboard
     window.scoreboard = new VolleyballScoreboard();
+    
+    // Initialize realtime streaming
+    if (window.RealtimeScoreboard) {
+        window.realtimeScoreboard = new RealtimeScoreboard();
+        // Check URL parameters for auto-join
+        window.realtimeScoreboard.checkURLParameters();
+    }
     
     // Prevent team input clicks from bubbling up to team section
     const teamInputs = document.querySelectorAll('.team-input');
