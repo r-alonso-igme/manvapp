@@ -348,7 +348,6 @@ display: none;
     border-radius: 1rem;
     padding: 2rem;
     box-shadow: var(--shadow);
-    margin: 2rem 0;
     max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
@@ -491,6 +490,32 @@ display: none;
     gap: 1rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    background-image: url('../images/white_shirt.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 2rem;
+    border-radius: 1rem;
+    position: relative;
+    border: 2px solid var(--border-color);
+}
+
+.game-controls::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 1rem;
+    z-index: 1;
+}
+
+.game-controls > * {
+    position: relative;
+    z-index: 2;
 }
 
 .btn-secondary {
@@ -712,14 +737,13 @@ display: none;
 /* Responsive Design for Scoreboard */
 @media (max-width: 768px) {
     .scoreboard {
-        grid-template-columns: 1fr;
         gap: 1rem;
         padding: 1rem;
     }
 
     .vs-divider {
         border: none;
-        border-top: 2px solid var(--border-color);
+        /* border-top: 2px solid var(--border-color); */
         border-bottom: 2px solid var(--border-color);
         order: 2;
     }
@@ -844,4 +868,13 @@ display: none;
 [data-theme="dark"] .notification.info {
     background: rgba(59, 130, 246, 0.2);
     border-color: #3b82f6;
+}
+
+[data-theme="dark"] .game-controls {
+    /* background: linear-gradient(135deg, #1e293b, #334155); */
+    background-image: url('../images/dark_shirt.jpg');
+}
+
+[data-theme="dark"] .game-controls::before {
+    background: rgba(15, 23, 42, 0.8);
 }
