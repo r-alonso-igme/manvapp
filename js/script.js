@@ -222,7 +222,7 @@ class VolleyballScoreboard {
                 timeouts: 0
             },
             currentSet: 1,
-            matchType: 3, // Best of 3 or 5
+            matchType: 5, // Best of 3 or 5
             setHistory: [],
             gameEnded: false,
             timeoutActive: false,
@@ -234,10 +234,16 @@ class VolleyballScoreboard {
     }
 
     initializeScoreboard() {
+        // Read match type from HTML (in case it was set there)
+        const htmlMatchType = document.getElementById('matchType').value;
+        if (htmlMatchType) {
+            this.gameState.matchType = parseInt(htmlMatchType);
+        }
+        
         // Update display
         this.updateDisplay();
         
-        // Set initial match type
+        // Set initial match type in HTML
         document.getElementById('matchType').value = this.gameState.matchType.toString();
         
         // Update status
@@ -399,6 +405,7 @@ class VolleyballScoreboard {
         }
 
         showNotification(`🏆 ${winnerName} wins the match!`, 'success');
+        this.updateSetHistory(); // Update set history to show the final set
         this.updateGameStatus();
     }
 
@@ -620,9 +627,9 @@ class VolleyballScoreboard {
         const guestScore = this.gameState.teamB.score;
         const homeSets = this.gameState.teamA.sets;
         const guestSets = this.gameState.teamB.sets;
-        const timeoutStatus = this.gameState.timeoutActive ? 'yes' : 'not';
+        const timeoutStatus = this.gameState.timeoutActive ? 'Tiempo' : '';
 
-        const exportString = `${homeScore}:${guestScore} (${homeSets}/${guestSets}) timeout (${timeoutStatus})`;
+        const exportString = `${homeScore}:${guestScore} (${homeSets}/${guestSets}) ${timeoutStatus}`;
 
         // Create a modal or notification with the export string
         this.showExportModal(exportString);
