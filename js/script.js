@@ -887,6 +887,17 @@ function removeTimeout(team) {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize volleyball scoreboard
     window.scoreboard = new VolleyballScoreboard();
+    
+    // Prevent team input clicks from bubbling up to team section
+    const teamInputs = document.querySelectorAll('.team-input');
+    teamInputs.forEach(input => {
+        input.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        input.addEventListener('focus', function(e) {
+            e.stopPropagation();
+        });
+    });
 });
 
 // Export for potential module use
