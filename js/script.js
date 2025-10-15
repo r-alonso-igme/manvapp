@@ -54,17 +54,17 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Basic validation
             if (!name || !email || !message) {
-                showNotification('Please fill in all fields.', 'error');
+                showNotification('Por favor completa todos los campos.', 'error');
                 return;
             }
             
             if (!isValidEmail(email)) {
-                showNotification('Please enter a valid email address.', 'error');
+                showNotification('Por favor ingresa una dirección de email válida.', 'error');
                 return;
             }
             
             // Simulate form submission
-            showNotification('Thank you for your message! We\'ll get back to you soon.', 'success');
+            showNotification('¡Gracias por tu mensaje! Te responderemos pronto.', 'success');
             this.reset();
         });
     }
@@ -210,13 +210,13 @@ class VolleyballScoreboard {
     constructor() {
         this.gameState = {
             teamA: {
-                name: 'Team A',
+                name: 'Equipo A',
                 score: 0,
                 sets: 0,
                 timeouts: 0
             },
             teamB: {
-                name: 'Team B',
+                name: 'Equipo B',
                 score: 0,
                 sets: 0,
                 timeouts: 0
@@ -271,11 +271,11 @@ class VolleyballScoreboard {
         
         // Team name changes
         document.getElementById('teamAName').addEventListener('input', (e) => {
-            this.gameState.teamA.name = e.target.value || 'Team A';
+            this.gameState.teamA.name = e.target.value || 'Equipo A';
         });
         
         document.getElementById('teamBName').addEventListener('input', (e) => {
-            this.gameState.teamB.name = e.target.value || 'Team B';
+            this.gameState.teamB.name = e.target.value || 'Equipo B';
         });
 
         // Keyboard shortcuts
@@ -360,7 +360,7 @@ class VolleyballScoreboard {
 
         // Show set completion notification
         const winnerName = winner === 'A' ? this.gameState.teamA.name : this.gameState.teamB.name;
-        showNotification(`${winnerName} wins Set ${this.gameState.currentSet}!`, 'success');
+        showNotification(`¡${winnerName} gana el Set ${this.gameState.currentSet}!`, 'success');
 
         // Check if match is over
         if (this.checkMatchEnd()) {
@@ -405,7 +405,7 @@ class VolleyballScoreboard {
             document.getElementById('teamB').classList.add('winner');
         }
 
-        showNotification(`🏆 ${winnerName} wins the match!`, 'success');
+        showNotification(`🏆 ¡${winnerName} gana el partido!`, 'success');
         this.updateSetHistory(); // Update set history to show the final set
         this.updateGameStatus();
     }
@@ -414,13 +414,13 @@ class VolleyballScoreboard {
         // Reset all game state
         this.gameState = {
             teamA: {
-                name: document.getElementById('teamAName').value || 'Team A',
+                name: document.getElementById('teamAName').value || 'Equipo A',
                 score: 0,
                 sets: 0,
                 timeouts: 0
             },
             teamB: {
-                name: document.getElementById('teamBName').value || 'Team B',
+                name: document.getElementById('teamBName').value || 'Equipo B',
                 score: 0,
                 sets: 0,
                 timeouts: 0
@@ -441,7 +441,7 @@ class VolleyballScoreboard {
         this.updateSetHistory();
         this.updateGameStatus();
         
-        showNotification('New match started!', 'info');
+        showNotification('¡Nuevo partido iniciado!', 'info');
     }
 
     resetSet() {
@@ -453,7 +453,7 @@ class VolleyballScoreboard {
         this.gameState.teamB.score = 0;
         
         this.updateDisplay();
-        showNotification('Set reset!', 'info');
+        showNotification('¡Set reiniciado!', 'info');
     }
 
     saveStateForUndo() {
@@ -469,7 +469,7 @@ class VolleyballScoreboard {
 
     undoLastAction() {
         if (!this.gameState.lastAction) {
-            showNotification('Nothing to undo!', 'error');
+            showNotification('¡No hay nada que deshacer!', 'error');
             return;
         }
 
@@ -489,7 +489,7 @@ class VolleyballScoreboard {
         this.updateSetHistory();
         this.updateGameStatus();
         
-        showNotification('Last action undone!', 'info');
+        showNotification('¡Última acción deshecha!', 'info');
         this.gameState.lastAction = null;
     }
 
@@ -547,7 +547,7 @@ class VolleyballScoreboard {
             statusText.textContent = `🏆 ${winner} wins the match!`;
             statusText.className = 'status-text match-won';
         } else {
-            statusText.textContent = `Match in Progress - Set ${this.gameState.currentSet}`;
+            statusText.textContent = `Partido en Progreso - Set ${this.gameState.currentSet}`;
             statusText.className = 'status-text in-progress';
         }
     }
@@ -599,14 +599,14 @@ class VolleyballScoreboard {
         } else if (team === 'B' && this.gameState.teamB.timeouts < maxTimeouts) {
             this.gameState.teamB.timeouts++;
         } else {
-            showNotification(`Maximum ${maxTimeouts} timeouts per set reached!`, 'error');
+            showNotification(`¡Máximo ${maxTimeouts} tiempos por set alcanzado!`, 'error');
             return;
         }
 
         this.updateDisplay();
         
         const teamName = team === 'A' ? this.gameState.teamA.name : this.gameState.teamB.name;
-        showNotification(`Timeout called by ${teamName}`, 'info');
+        showNotification(`Tiempo solicitado por ${teamName}`, 'info');
     }
 
     removeTimeout(team) {
@@ -658,10 +658,10 @@ class VolleyballScoreboard {
         const exportString = `${setScoresString} (${homeSets}/${guestSets}) [${matchStatus}]`;
         
         // Create a modal or notification with the export string
-        this.showExportModal(exportString, 'Set History Export', 'Format: [score1] [score2] ... (sets_won) [Set X/Final]');
+        this.showExportModal(exportString, 'Exportar Historial de Sets', 'Formato: [puntaje1] [puntaje2] ... (sets_ganados) [Set X/Final]');
     }
 
-    showExportModal(exportString, title = 'Export Result', format = '[points_home]:[points_guest] (sets_home/sets_guest) [Tiempo]') {
+    showExportModal(exportString, title = 'Exportar Resultado', format = '[puntos_local]:[puntos_visitante] (sets_local/sets_visitante) [Tiempo]') {
         // Create modal overlay
         const modal = document.createElement('div');
         modal.style.cssText = `
@@ -696,17 +696,17 @@ class VolleyballScoreboard {
             </div>
             <div style="margin: 1rem 0;">
                 <button id="copyBtn" style="background: #2563eb; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; margin-right: 0.5rem; cursor: pointer;">
-                    Copy to Clipboard
+                    Portapapeles
                 </button>
                 <button id="shareBtn" style="background: #10b981; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; margin-right: 0.5rem; cursor: pointer;">
-                    Share
+                    Compartir
                 </button>
                 <button id="closeModalBtn" style="background: #64748b; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; cursor: pointer;">
-                    Close
+                    Cerrar
                 </button>
             </div>
             <div style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
-                <strong>Format:</strong> ${format}
+                <strong>Formato:</strong> ${format}
             </div>
         `;
 
@@ -716,7 +716,7 @@ class VolleyballScoreboard {
         // Add event listeners
         document.getElementById('copyBtn').addEventListener('click', () => {
             navigator.clipboard.writeText(exportString).then(() => {
-                showNotification('Result copied to clipboard!', 'success');
+                showNotification('¡Resultado copiado al portapapeles!', 'success');
                 document.body.removeChild(modal);
             }).catch(() => {
                 // Fallback for older browsers
@@ -726,7 +726,7 @@ class VolleyballScoreboard {
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showNotification('Result copied to clipboard!', 'success');
+                showNotification('¡Resultado copiado al portapapeles!', 'success');
                 document.body.removeChild(modal);
             });
         });
@@ -805,7 +805,7 @@ class VolleyballScoreboard {
         const encodedText = encodeURIComponent(text);
         
         shareContent.innerHTML = `
-            <h3 style="margin-bottom: 1.5rem; color: #1e293b;">Share to App</h3>
+            <h3 style="margin-bottom: 1.5rem; color: #1e293b;">Compartir en App</h3>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <a href="https://wa.me/?text=${encodedText}" target="_blank" 
                    style="background: #25d366; color: white; padding: 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
@@ -815,7 +815,7 @@ class VolleyballScoreboard {
                    style="background: #0088cc; color: white; padding: 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
                    ✈️ Telegram
                 </a>
-                <a href="mailto:?subject=Volleyball Match Result&body=${encodedText}" 
+                <a href="mailto:?subject=Resultado Partido de Voleibol&body=${encodedText}" 
                    style="background: #ea4335; color: white; padding: 1rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
                    📧 Email
                 </a>
@@ -825,7 +825,7 @@ class VolleyballScoreboard {
                 </a>
             </div>
             <button id="closeFallbackBtn" style="background: #64748b; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; margin-top: 1.5rem; cursor: pointer;">
-                Close
+                Cerrar
             </button>
         `;
 
