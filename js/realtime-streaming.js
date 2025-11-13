@@ -96,6 +96,9 @@ class RealtimeScoreboard {
                     <button id="startRefereeBtn" class="btn btn-primary" title="Solo administradores">
                         👨‍⚖️ Iniciar como Árbitro
                     </button>
+                    <button id="joinRefereeBtn" class="btn btn-primary" title="Solo administradores">
+                        🔗 Unirse como Árbitro
+                    </button>
                     <button id="joinSpectatorBtn" class="btn btn-secondary">
                         👁️ Unirse como Espectador
                     </button>
@@ -171,6 +174,11 @@ class RealtimeScoreboard {
         // Referee mode
         document.getElementById('startRefereeBtn')?.addEventListener('click', () => {
             this.startAsReferee();
+        });
+
+        // Join as Referee mode
+        document.getElementById('joinRefereeBtn')?.addEventListener('click', () => {
+            this.joinAsReferee();
         });
 
         // Spectator mode
@@ -289,6 +297,90 @@ class RealtimeScoreboard {
         this.broadcastGameState();
         
         showNotification('¡Streaming iniciado como Árbitro! 🔴', 'success');
+    }
+
+    async joinAsReferee() {
+        if (!this.isFirebaseEnabled) return;
+
+        // First verify admin password
+        const hasAdminAccess = await this.verifyAdminPasswordPrompt();
+        if (!hasAdminAccess) {
+            return;
+        }
+
+        // Then ask for match ID
+        const matchId = prompt('Ingresa el ID del partido al que te quieres unir como árbitro:');
+        if (!matchId) return;
+
+        try {
+            // Check if match exists
+            const matchRef = this.firebaseFunctions.ref(`matches/${matchId}`);
+            const snapshot = await new Promise((resolve) => {
+                matchRef.once('value', resolve);
+            });
+
+            if (!snapshot.exists()) {
+                showNotification('❌ No se encontró el partido con ese ID.', 'error');
+                return;
+            }
+
+            // Set up as referee
+            this.matchId = matchId;
+            this.currentMatchRef = matchRef;
+            this.isReferee = true;
+
+            // Update match metadata to show new referee
+            const matchData = snapshot.val();
+            await this.firebaseFunctions.set(this.firebaseFunctions.ref(`matches/${this.matchId}/metadata/referee`), true);
+            await this.firebaseFunctions.set(this.firebaseFunctions.ref(`matches/${this.matchId}/metadata/refereeJoinedAt`), this.firebaseFunctions.serverTimestamp);
+
+            // Set up real-time listeners
+            this.firebaseFunctions.onValue(this.currentMatchRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    this.syncMatchFromFirebase(snapshot.val());
+                }
+            });
+
+            // Track connections for this match
+            const connectionsRef = this.firebaseFunctions.ref(`matches/${this.matchId}/connections`);
+            const userConnectionRef = connectionsRef.push();
+            
+            // Set user as connected with referee role
+            await this.firebaseFunctions.set(userConnectionRef, {
+                timestamp: this.firebaseFunctions.serverTimestamp,
+                role: 'referee',
+                joinedAt: new Date().toISOString()
+            });
+
+            // Remove connection when user disconnects
+            this.firebaseFunctions.onDisconnect(userConnectionRef).remove();
+
+            // Listen for connection count changes
+            this.firebaseFunctions.onValue(connectionsRef, (snapshot) => {
+                const connections = snapshot.val() || {};
+                this.connectedUsers = Object.keys(connections).length;
+                this.updateUI();
+            });
+
+            // Sync current game state to Firebase if needed
+            this.syncTimeoutStates();
+            this.broadcastGameState();
+
+            // Start streaming timer if not already running
+            if (matchData.streamingStartTime && !this.streamingStartTime) {
+                this.streamingStartTime = matchData.streamingStartTime;
+                this.startStreamingTimer();
+            }
+
+            this.updateUI();
+            this.startBroadcasting();
+
+            showNotification(`¡Te has unido como Árbitro al partido ${matchId}! 👨‍⚖️`, 'success');
+            
+        } catch (error) {
+            console.error('Error joining as referee:', error);
+            showNotification('❌ Error al unirse como árbitro. Inténtalo de nuevo.', 'error');
+        }
     }
 
     async joinAsSpectator() {
