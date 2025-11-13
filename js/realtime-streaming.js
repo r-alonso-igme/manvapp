@@ -287,6 +287,9 @@ class RealtimeScoreboard {
             this.connectedUsers = Object.keys(connections).length;
             this.updateUI();
         });
+        
+        // Listen for notifications (referee also receives them for consistency)
+        this.setupNotificationListener();
 
         this.updateUI();
         this.startBroadcasting();
@@ -620,6 +623,12 @@ class RealtimeScoreboard {
             const winner = completeGameState.teamA.sets > completeGameState.teamB.sets ? 'teamA' : 'teamB';
             document.getElementById(winner).classList.add('winner');
         }
+        
+        // Setup notification listener for spectators (only once)
+        if (!this.isReferee && !this.notificationListenerSetup) {
+            this.setupNotificationListener();
+            this.notificationListenerSetup = true;
+        }
     }
 
     async broadcastGameState() {
@@ -640,6 +649,57 @@ class RealtimeScoreboard {
         } catch (error) {
             console.error('Error broadcasting game state:', error);
         }
+    }
+
+    async broadcastNotification(message, type = 'info', duration = 5000) {
+        if (!this.isReferee || !this.currentMatchRef) return;
+        
+        const notificationData = {
+            message: message,
+            type: type,
+            duration: duration,
+            timestamp: Date.now(),
+            id: Math.random().toString(36).substr(2, 9)
+        };
+
+        try {
+            // Send notification to Firebase
+            const notificationRef = this.firebaseFunctions.ref(`matches/${this.matchId}/notifications/${notificationData.id}`);
+            await this.firebaseFunctions.set(notificationRef, notificationData);
+            
+            // Auto-remove notification after a short delay to keep Firebase clean
+            setTimeout(async () => {
+                try {
+                    await notificationRef.remove();
+                } catch (error) {
+                    console.error('Error removing notification:', error);
+                }
+            }, duration + 1000);
+        } catch (error) {
+            console.error('Error broadcasting notification:', error);
+        }
+    }
+
+    setupNotificationListener() {
+        if (!this.currentMatchRef) return;
+        
+        const notificationsRef = this.firebaseFunctions.ref(`matches/${this.matchId}/notifications`);
+        
+        this.firebaseFunctions.onValue(notificationsRef, (snapshot) => {
+            const notifications = snapshot.val();
+            if (notifications) {
+                // Get the latest notification
+                const notificationKeys = Object.keys(notifications);
+                const latestKey = notificationKeys[notificationKeys.length - 1];
+                const latestNotification = notifications[latestKey];
+                
+                // Only show if this notification is newer than our last seen
+                if (!this.lastSeenNotificationId || latestNotification.id !== this.lastSeenNotificationId) {
+                    showNotification(latestNotification.message, latestNotification.type, latestNotification.duration);
+                    this.lastSeenNotificationId = latestNotification.id;
+                }
+            }
+        });
     }
 
     generateMatchId() {

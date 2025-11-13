@@ -553,14 +553,25 @@ class VolleyballScoreboard {
         } else if (team === 'B' && this.gameState.teamB.timeouts < maxTimeouts) {
             this.gameState.teamB.timeouts++;
         } else {
-            showNotification(`¡Máximo ${maxTimeouts} tiempos por set alcanzado!`, 'error');
+            const errorMsg = `¡Máximo ${maxTimeouts} tiempos por set alcanzado!`;
+            showNotification(errorMsg, 'error');
+            // Broadcast error to all spectators if realtime is enabled
+            if (window.realtimeScoreboard && window.realtimeScoreboard.isReferee) {
+                window.realtimeScoreboard.broadcastNotification(errorMsg, 'error');
+            }
             return;
         }
 
         this.updateDisplay();
         
         const teamName = team === 'A' ? this.gameState.teamA.name : this.gameState.teamB.name;
-        showNotification(`Tiempo solicitado por ${teamName}`, 'info', 30000);
+        const timeoutMsg = `Tiempo solicitado por ${teamName}`;
+        showNotification(timeoutMsg, 'info', 30000);
+        
+        // Broadcast timeout notification to all connected spectators if realtime is enabled
+        if (window.realtimeScoreboard && window.realtimeScoreboard.isReferee) {
+            window.realtimeScoreboard.broadcastNotification(timeoutMsg, 'info', 30000);
+        }
     }
 
     removeTimeout(team) {
