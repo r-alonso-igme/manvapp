@@ -587,13 +587,13 @@ body::after {
 }
 
 .timeout-indicator {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
 }
 
 .timeout-indicator label {
-    display: flex;
+    display: none;
     align-items: center;
     gap: 0.5rem;
     font-weight: 600;
