@@ -476,7 +476,7 @@ class VolleyballScoreboard {
 
         // Ensure setHistory exists and is an array
         if (!this.gameState.setHistory || !Array.isArray(this.gameState.setHistory) || this.gameState.setHistory.length === 0) {
-            historyContainer.innerHTML = '<p style="text-align: center; color: #64748b;">No sets completed yet</p>';
+            historyContainer.innerHTML = '<p style="text-align: center; color: #64748b;">No hay sets completados aún</p>';
             return;
         }
 
