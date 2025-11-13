@@ -94,10 +94,10 @@ class RealtimeScoreboard {
                 <h3>🔴 Marcador en Tiempo Real</h3>
                 <div class="streaming-options">
                     <button id="startRefereeBtn" class="btn btn-primary" title="Solo administradores">
-                        👨‍⚖️ Iniciar como Administrador
+                        👨‍⚖️ Iniciar como Organizador
                     </button>
                     <button id="joinRefereeBtn" class="btn btn-primary" title="Solo administradores">
-                        🔗 Unirse como Administrador
+                        🔗 Unirse como Organizador
                     </button>
                     <button id="joinSpectatorBtn" class="btn btn-secondary">
                         👁️ Unirse como Espectador
