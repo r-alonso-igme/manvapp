@@ -132,10 +132,23 @@ body::after {
     align-items: center;
 }
 
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-logo {
+    height: 2rem;
+    width: auto;
+    border-radius: 4px;
+}
+
 .nav-brand h1 {
     color: var(--primary-color);
     font-size: 1.5rem;
     font-weight: 700;
+    margin: 0;
 }
 
 .nav-menu {
