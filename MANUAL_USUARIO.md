@@ -71,8 +71,7 @@ Al abrir la aplicación verás:
 
 ### Acceso como Árbitro
 1. Haz clic en **"👨‍⚖️ Iniciar como Árbitro"**
-2. Ingresa la **contraseña de administrador**
-   - Contraseñas por defecto: `admin123`, `referee2024`, `voleibol`
+2. Ingresa la **contraseña de administrador** (solicita al administrador del sistema)
 3. Se creará automáticamente un **ID único de partido**
 
 ### Controles de Árbitro
