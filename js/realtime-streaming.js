@@ -91,13 +91,13 @@ class RealtimeScoreboard {
         // Add streaming controls to the page
         const streamingHTML = `
             <div id="streaming-controls" class="streaming-section" style="display: none;">
-                <h3>🔴 Streaming en Tiempo Real</h3>
+                <h3>🔴 Marcador en Tiempo Real</h3>
                 <div class="streaming-options">
                     <button id="startRefereeBtn" class="btn btn-primary" title="Solo administradores">
-                        👨‍⚖️ Iniciar como Árbitro
+                        👨‍⚖️ Iniciar como Administrador
                     </button>
                     <button id="joinRefereeBtn" class="btn btn-primary" title="Solo administradores">
-                        🔗 Unirse como Árbitro
+                        🔗 Unirse como Administrador
                     </button>
                     <button id="joinSpectatorBtn" class="btn btn-secondary">
                         👁️ Unirse como Espectador
@@ -132,9 +132,9 @@ class RealtimeScoreboard {
             
             <!-- Indicador EN VIVO para espectadores -->
             <div id="spectator-live-indicator" class="live-indicator" style="display: none;">
-                <div class="live-animation">🔴 VIENDO EN VIVO</div>
+                <div class="live-animation">🔴 MARCADOR EN VIVO</div>
                 <div class="streaming-time">
-                    <strong>⏱️ Tiempo de Transmisión:</strong> <span id="spectator-timer">00:00:00</span>
+                    <strong>⏱️ Tiempo de Retransmisión:</strong> <span id="spectator-timer">00:00:00</span>
                 </div>
             </div>
             

@@ -36,43 +36,21 @@
     </header>
 
     <main class="main">
-        <section id="scoreboard" class="section">
-            <div class="container">
-                <h2 class="section-title">Marcador de Voleibol</h2>
-
+        <section id="scoreboard_offline" class="section">
+            <div class="container">  
                 <!-- Controles del Juego -->
                 <div class="game-controls">
+                    <p>Controles del marcador en modo offline.</p>
                     <button class="btn btn-primary" id="newGameBtn">Nuevo Partido</button>
                     <button class="btn btn-secondary" id="resetSetBtn">Reiniciar Set</button>
                     <button class="btn btn-secondary" id="undoBtn">Deshacer</button>
                     <button class="btn btn-export" id="exportBtn">Exportar Resultado</button>
                     <button class="btn btn-history" id="exportHistoryBtn">Exportar Historial</button>
                 </div>
-
-                <!-- Controles de Tiempo -->
-                <div class="timeout-controls">
-                    <div class="timeout-section">
-                        <label>Tiempos Equipo A:</label>
-                        <div class="timeout-buttons">
-                            <button class="timeout-btn" onclick="addTimeout('A')">+</button>
-                            <span class="timeout-count" id="teamATimeouts">0</span>
-                            <button class="timeout-btn" onclick="removeTimeout('A')">-</button>
-                        </div>
-                    </div>
-                    <div class="timeout-indicator">
-                        <label>
-                            <input type="checkbox" id="timeoutActive"> Tiempo Muerto
-                        </label>
-                    </div>
-                    <div class="timeout-section">
-                        <label>Tiempos Equipo B:</label>
-                        <div class="timeout-buttons">
-                            <button class="timeout-btn" onclick="addTimeout('B')">+</button>
-                            <span class="timeout-count" id="teamBTimeouts">0</span>
-                            <button class="timeout-btn" onclick="removeTimeout('B')">-</button>
-                        </div>
-                    </div>
-                </div>
+            </div>
+        </section>
+        <section id="scoreboard" class="section">
+            <div class="container">
 
                 <!-- Main Scoreboard -->
                 <div class="scoreboard">
@@ -113,6 +91,31 @@
                         <div class="score-controls">
                             <button class="score-btn plus" onclick="addPoint('B')">+</button>
                             <button class="score-btn minus" onclick="removePoint('B')">-</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Controles de Tiempo -->
+                <div class="timeout-controls">
+                    <div class="timeout-indicator">
+                        <label>
+                            <input type="checkbox" id="timeoutActive"> Tiempo Muerto Activo
+                        </label>
+                    </div>
+                    <div class="timeout-section">
+                        <label>Tiempos Manzanares Voley:</label>
+                        <div class="timeout-buttons">
+                            <button class="timeout-btn" onclick="addTimeout('A')">+</button>
+                            <span class="timeout-count" id="teamATimeouts">0</span>
+                            <button class="timeout-btn" onclick="removeTimeout('A')">-</button>
+                        </div>
+                    </div>
+                    <div class="timeout-section">
+                        <label>Tiempos Equipo contrario:</label>
+                        <div class="timeout-buttons">
+                            <button class="timeout-btn" onclick="addTimeout('B')">+</button>
+                            <span class="timeout-count" id="teamBTimeouts">0</span>
+                            <button class="timeout-btn" onclick="removeTimeout('B')">-</button>
                         </div>
                     </div>
                 </div>
