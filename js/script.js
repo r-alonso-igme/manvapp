@@ -53,7 +53,7 @@ function isValidEmail(email) {
 }
 
 // Notification system
-function showNotification(message, type = 'info') {
+function showNotification(message, type = 'info', duration = 5000) {
     // Remove existing notification
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
@@ -88,7 +88,7 @@ function showNotification(message, type = 'info') {
         notification.style.transform = 'translateX(0)';
     }, 100);
 
-    // Remove after 5 seconds
+    // Remove after specified duration
     setTimeout(() => {
         notification.style.transform = 'translateX(100%)';
         setTimeout(() => {
@@ -96,7 +96,7 @@ function showNotification(message, type = 'info') {
                 notification.remove();
             }
         }, 300);
-    }, 5000);
+    }, duration);
 }
 
 // Scroll animations
@@ -560,7 +560,7 @@ class VolleyballScoreboard {
         this.updateDisplay();
         
         const teamName = team === 'A' ? this.gameState.teamA.name : this.gameState.teamB.name;
-        showNotification(`Tiempo solicitado por ${teamName}`, 'info');
+        showNotification(`Tiempo solicitado por ${teamName}`, 'info', 30000);
     }
 
     removeTimeout(team) {
