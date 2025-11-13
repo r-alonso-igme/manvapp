@@ -85,8 +85,8 @@ En Realtime Database > Reglas, puedes usar estas reglas básicas:
 
 ## 🎯 Cómo Usar
 
-### Modo Árbitro
-1. Haz clic en "👨‍⚖️ Iniciar como Árbitro"
+### Modo Organizador
+1. Haz clic en "👨‍⚖️ Iniciar como Organizador"
 2. Se genera automáticamente un ID de partido
 3. Comparte el QR o enlace con espectadores
 4. Controla el marcador normalmente

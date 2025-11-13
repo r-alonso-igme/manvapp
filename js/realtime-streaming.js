@@ -105,7 +105,7 @@ class RealtimeScoreboard {
                 </div>
                 <div class="admin-info">
                     <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">
-                        <strong>Nota:</strong> Se requiere contraseña de administrador para iniciar como árbitro
+                        <strong>Nota:</strong> Se requiere contraseña de administrador para iniciar como Organizador
                     </p>
                 </div>
                 <div id="match-info" style="display: none;">
@@ -241,7 +241,7 @@ class RealtimeScoreboard {
         // Admin authentication
         const adminPassword = prompt('🔐 Contraseña de Administrador:');
         if (!this.verifyAdminPassword(adminPassword)) {
-            showNotification('❌ Contraseña incorrecta. Solo administradores pueden iniciar como árbitro.', 'error');
+            showNotification('❌ Contraseña incorrecta. Solo administradores pueden iniciar como Organizador.', 'error');
             return;
         }
         

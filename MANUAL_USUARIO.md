@@ -88,14 +88,14 @@ Al abrir la aplicación verás:
 
 ---
 
-## 👨‍⚖️ Modo Árbitro
+## 👨‍⚖️ Modo Organizador
 
-### Acceso como Árbitro
-1. Haz clic en **"👨‍⚖️ Iniciar como Árbitro"**
+### Acceso como Organizador
+1. Haz clic en **"👨‍⚖️ Iniciar como Organizador"**
 2. Ingresa la **contraseña de administrador** (solicita al administrador del sistema)
 3. Se creará automáticamente un **ID único de partido**
 
-### Controles de Árbitro
+### Controles de Organizador
 
 #### Marcador Básico
 - **Agregar puntos**: Botones `+` o clic en nombre del equipo
@@ -315,7 +315,7 @@ Archivo: `css/styles.css`
 3. Revisa la consola del navegador
 
 #### "Contraseña incorrecta"
-**Síntomas**: No puedes iniciar como árbitro
+**Síntomas**: No puedes iniciar como Organizador
 **Solución**:
 1. Solicita las credenciales al administrador del sistema
 2. Verifica que no tengas errores tipográficos

@@ -63,7 +63,7 @@ showNotification('❌ Contraseña incorrecta...', 'error');
 
 ## 📱 Experiencia de Usuario
 
-1. Usuario hace clic en "🔐 Iniciar como Árbitro"
+1. Usuario hace clic en "🔐 Iniciar como Organizador"
 2. Aparece prompt pidiendo contraseña
 3. Si es correcta: Se inicia el streaming
 4. Si es incorrecta: Mensaje de error y acceso denegado
