@@ -210,13 +210,13 @@ class VolleyballScoreboard {
     constructor() {
         this.gameState = {
             teamA: {
-                name: 'Equipo A',
+                name: 'Manzanares Voley',
                 score: 0,
                 sets: 0,
                 timeouts: 0
             },
             teamB: {
-                name: 'Equipo B',
+                name: 'Equipo contrario',
                 score: 0,
                 sets: 0,
                 timeouts: 0
@@ -271,11 +271,11 @@ class VolleyballScoreboard {
         
         // Team name changes
         document.getElementById('teamAName').addEventListener('input', (e) => {
-            this.gameState.teamA.name = e.target.value || 'Equipo A';
+            this.gameState.teamA.name = e.target.value || 'Manzanares Voley';
         });
         
         document.getElementById('teamBName').addEventListener('input', (e) => {
-            this.gameState.teamB.name = e.target.value || 'Equipo B';
+            this.gameState.teamB.name = e.target.value || 'Equipo contrario';
         });
 
         // Keyboard shortcuts
