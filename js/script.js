@@ -40,51 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Contact Form Handling
-    const contactForm = document.querySelector('.contact-form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form data
-            const formData = new FormData(this);
-            const name = formData.get('name');
-            const email = formData.get('email');
-            const message = formData.get('message');
-            
-            // Basic validation
-            if (!name || !email || !message) {
-                showNotification('Por favor completa todos los campos.', 'error');
-                return;
-            }
-            
-            if (!isValidEmail(email)) {
-                showNotification('Por favor ingresa una dirección de email válida.', 'error');
-                return;
-            }
-            
-            // Simulate form submission
-            showNotification('¡Gracias por tu mensaje! Te responderemos pronto.', 'success');
-            this.reset();
-        });
-    }
 
-    // Get Started Button
-    const getStartedBtn = document.querySelector('.btn-primary');
-    if (getStartedBtn && getStartedBtn.textContent === 'Get Started') {
-        getStartedBtn.addEventListener('click', function() {
-            const aboutSection = document.querySelector('#about');
-            if (aboutSection) {
-                const headerHeight = document.querySelector('.header').offsetHeight;
-                const targetPosition = aboutSection.offsetTop - headerHeight;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    }
 
     // Initialize animations
     initScrollAnimations();
@@ -159,14 +115,7 @@ function initScrollAnimations() {
         });
     }, observerOptions);
 
-    // Observe service cards
-    const serviceCards = document.querySelectorAll('.service-card');
-    serviceCards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
-    });
+    // No elements to observe anymore
 }
 
 // Utility functions
