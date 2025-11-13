@@ -30,6 +30,8 @@
 - ✅ **Responsive** para móviles y tablets
 - ✅ **Tema oscuro/claro**
 - ✅ **Exportación de resultados**
+- ✅ **Interfaz simplificada** - Solo lo esencial
+- ✅ **Navegación optimizada** - Acceso directo al marcador
 
 ---
 
@@ -56,14 +58,33 @@
 ### Interfaz Principal
 Al abrir la aplicación verás:
 
-1. **Navegación superior** con tema claro/oscuro 🌙/☀️
-2. **Sección "Marcador"** - El corazón de la aplicación
-3. **Controles de streaming** (si Firebase está configurado)
+1. **Navegación superior** simplificada con tema claro/oscuro 🌙/☀️
+2. **Sección "Marcador"** - Enfoque directo en la funcionalidad principal
+3. **Interfaz optimizada** - Sin secciones innecesarias
+4. **Controles de streaming** integrados (si Firebase está configurado)
 
 ### Temas Visuales
 - 🌙 **Tema Oscuro** - Ideal para uso nocturno
 - ☀️ **Tema Claro** - Mejor visibilidad diurna
 - 🔄 **Cambio automático** - Guarda tu preferencia
+- 🎯 **Enfoque simplificado** - Interfaz limpia sin distracciones
+
+---
+
+## 🎯 Nueva Interfaz Optimizada (Noviembre 2025)
+
+### Cambios Principales
+- **✨ Interfaz simplificada**: Eliminadas secciones innecesarias (Inicio, Acerca de, Servicios, Contacto)
+- **🎯 Enfoque directo**: La aplicación se abre directamente en el marcador
+- **📱 Navegación limpia**: Solo el enlace "Marcador" en la barra superior
+- **⚡ Carga más rápida**: Menos código, mejor rendimiento
+- **🎨 Diseño optimizado**: Interfaz más profesional y enfocada
+
+### Beneficios
+- **🚀 Acceso inmediato** al marcador sin navegación adicional
+- **📱 Menos confusión** para usuarios nuevos
+- **⚡ Mejor rendimiento** en dispositivos móviles
+- **🎯 Experiencia centrada** en la funcionalidad principal
 
 ---
 
@@ -155,15 +176,17 @@ Al abrir la aplicación verás:
 ## 🖥️ Marcador Offline
 
 ### Uso Sin Internet
-Si no hay conexión a internet o Firebase no está configurado:
+La aplicación está optimizada para funcionar principalmente como marcador offline:
 
 #### Funcionalidad Completa
+- ✅ **Interfaz dedicada** - Sección específica para modo offline
 - ✅ **Todo el marcador funciona** normalmente
 - ✅ **Todas las reglas** de voleibol aplicadas
 - ✅ **Atajos de teclado** disponibles
 - ✅ **Exportación** de resultados
+- ✅ **Controles simplificados** - Enfoque en funciones esenciales
 
-#### Limitaciones
+#### Limitaciones (Solo para Streaming)
 - ❌ **Sin streaming** en tiempo real
 - ❌ **Sin compartir** con otros dispositivos
 - ❌ **Sin códigos QR**
@@ -410,6 +433,8 @@ Al reportar un problema, incluye:
 3. **Designa árbitro backup** que conozca la app
 4. **Documenta contraseñas** de administrador
 5. **Prueba todo** antes del evento oficial
+6. **Aprovecha la interfaz simplificada** - Menos tiempo de entrenamiento necesario
+7. **Usa modo offline** como respaldo si hay problemas de conexión
 
 ---
 
@@ -436,4 +461,4 @@ Al reportar un problema, incluye:
 
 ¡Disfruta usando ManvApp para tus partidos de voleibol! 🏐🎉
 
-**Versión**: 1.0.0 | **Última actualización**: Noviembre 2025
+**Versión**: 1.1.0 | **Última actualización**: Noviembre 2025 | **Interfaz Optimizada**
