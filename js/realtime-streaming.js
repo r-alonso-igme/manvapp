@@ -334,6 +334,9 @@ class RealtimeScoreboard {
             await this.firebaseFunctions.set(this.firebaseFunctions.ref(`matches/${this.matchId}/metadata/referee`), true);
             await this.firebaseFunctions.set(this.firebaseFunctions.ref(`matches/${this.matchId}/metadata/refereeJoinedAt`), this.firebaseFunctions.serverTimestamp);
 
+            // Sync current match state first
+            this.syncMatchFromFirebase(matchData);
+
             // Set up real-time listeners
             this.firebaseFunctions.onValue(this.currentMatchRef, (snapshot) => {
                 if (snapshot.exists()) {
@@ -560,6 +563,62 @@ class RealtimeScoreboard {
         
         if (team2TimeoutCheckbox && gameState.hasOwnProperty('team2TimeoutActive')) {
             team2TimeoutCheckbox.checked = gameState.team2TimeoutActive || false;
+        }
+    }
+
+    syncMatchFromFirebase(data) {
+        if (!window.scoreboard || !data) return;
+
+        // Ensure complete game state structure
+        const completeGameState = {
+            teamA: {
+                name: data.teamA?.name || 'Equipo A',
+                score: data.teamA?.score || 0,
+                sets: data.teamA?.sets || 0,
+                timeouts: data.teamA?.timeouts || 0
+            },
+            teamB: {
+                name: data.teamB?.name || 'Equipo B',
+                score: data.teamB?.score || 0,
+                sets: data.teamB?.sets || 0,
+                timeouts: data.teamB?.timeouts || 0
+            },
+            currentSet: data.currentSet || 1,
+            matchType: data.matchType || 5,
+            setHistory: data.setHistory || [],
+            gameEnded: data.gameEnded || false,
+            timeoutActive: data.timeoutActive || false,
+            lastAction: data.lastAction || null
+        };
+
+        // Update local scoreboard with synchronized data
+        window.scoreboard.gameState = completeGameState;
+        
+        // Update all UI components
+        window.scoreboard.updateDisplay();
+        window.scoreboard.updateSetHistory();
+        window.scoreboard.updateGameStatus();
+        
+        // Update timeout checkboxes
+        this.updateTimeoutCheckboxes(completeGameState);
+        
+        // Update team names in inputs
+        document.getElementById('teamAName').value = completeGameState.teamA.name;
+        document.getElementById('teamBName').value = completeGameState.teamB.name;
+        
+        // Update match type selector
+        document.getElementById('matchType').value = completeGameState.matchType.toString();
+        
+        // Update timeout active checkbox
+        document.getElementById('timeoutActive').checked = completeGameState.timeoutActive;
+        
+        // Sync visual highlights
+        document.getElementById('teamA').classList.remove('winner', 'serving');
+        document.getElementById('teamB').classList.remove('winner', 'serving');
+        
+        if (completeGameState.gameEnded) {
+            const winner = completeGameState.teamA.sets > completeGameState.teamB.sets ? 'teamA' : 'teamB';
+            document.getElementById(winner).classList.add('winner');
         }
     }
 
