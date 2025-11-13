@@ -141,7 +141,6 @@ body::after {
 .nav-logo {
     height: 2rem;
     width: auto;
-    border-radius: 4px;
 }
 
 .nav-brand h1 {
