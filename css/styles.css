@@ -19,6 +19,12 @@
     --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --score-font: 'Bebas Neue', 'Impact', 'Arial Black', 'Oswald', sans-serif;
     --transition: all 0.3s ease;
+    
+    /* Tiger background variables */
+    --tiger-bg-opacity: 0.08;
+    --tiger-bg-blur: 0px;
+    --tiger-bg-brightness: 1.2;
+    --tiger-bg-contrast: 0.8;
 }
 
 /* Dark Theme Variables */
@@ -32,6 +38,12 @@
     --white: #0f172a;
     --border-color: #334155;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    
+    /* Tiger background adjustments for dark theme */
+    --tiger-bg-opacity: 0.05;
+    --tiger-bg-blur: 1px;
+    --tiger-bg-brightness: 0.7;
+    --tiger-bg-contrast: 0.6;
 }
 
 /* Base Styles */
@@ -44,7 +56,44 @@ body {
     line-height: 1.6;
     color: var(--text-dark);
     background-color: var(--white);
+    background-image: url('../images/tiger-background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     transition: background-color var(--transition), color var(--transition);
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--white);
+    opacity: calc(1 - var(--tiger-bg-opacity));
+    pointer-events: none;
+    z-index: -1;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/tiger-background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    filter: blur(var(--tiger-bg-blur)) brightness(var(--tiger-bg-brightness)) contrast(var(--tiger-bg-contrast));
+    opacity: var(--tiger-bg-opacity);
+    pointer-events: none;
+    z-index: -2;
 }
 
 .container {
@@ -55,13 +104,18 @@ body {
 
 /* Header & Navigation */
 .header {
-    background: var(--white);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     box-shadow: var(--shadow);
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
+}
+
+[data-theme="dark"] .header {
+    background: rgba(15, 23, 42, 0.95);
 }
 
 .nav {
@@ -195,6 +249,7 @@ body {
 
 .section:nth-child(even) {
     background: var(--background-light);
+    backdrop-filter: blur(5px);
 }
 
 .section-title {
@@ -352,6 +407,13 @@ body {
     max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
+    position: relative;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="dark"] .scoreboard {
+    background: rgba(15, 23, 42, 0.95);
 }
 
 .team-section {
@@ -1241,4 +1303,34 @@ body {
 [data-theme="dark"] .admin-info {
     background: rgba(59, 130, 246, 0.2);
     border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Tiger Background Control Classes */
+.tiger-bg-subtle {
+    --tiger-bg-opacity: 0.03;
+}
+
+.tiger-bg-normal {
+    --tiger-bg-opacity: 0.08;
+}
+
+.tiger-bg-strong {
+    --tiger-bg-opacity: 0.15;
+}
+
+.tiger-bg-off {
+    --tiger-bg-opacity: 0;
+}
+
+/* For Dark Theme */
+[data-theme="dark"] .tiger-bg-subtle {
+    --tiger-bg-opacity: 0.02;
+}
+
+[data-theme="dark"] .tiger-bg-normal {
+    --tiger-bg-opacity: 0.05;
+}
+
+[data-theme="dark"] .tiger-bg-strong {
+    --tiger-bg-opacity: 0.10;
 }
