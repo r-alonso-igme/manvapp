@@ -254,11 +254,13 @@ En dispositivos compatibles:
 Ubicación: `js/realtime-streaming.js`
 ```javascript
 const adminPasswords = [
-    'admin123',      // Contraseña básica
-    'referee2024',   // Contraseña de árbitro
-    'voleibol'       // Contraseña temática
+    'password1',     // Contraseña personalizada 1
+    'password2',     // Contraseña personalizada 2
+    'password3'      // Contraseña personalizada 3
 ];
 ```
+
+**Nota**: Las contraseñas reales deben ser configuradas por el administrador del sistema.
 
 ### Personalización Visual
 
@@ -292,9 +294,9 @@ Archivo: `css/styles.css`
 #### "Contraseña incorrecta"
 **Síntomas**: No puedes iniciar como árbitro
 **Solución**:
-1. Prueba: `admin123`, `referee2024`, `voleibol`
-2. Contacta al administrador del sistema
-3. Verifica mayúsculas/minúsculas
+1. Solicita las credenciales al administrador del sistema
+2. Verifica que no tengas errores tipográficos
+3. Asegúrate de usar mayúsculas/minúsculas correctas
 
 #### "Partido no encontrado"
 **Síntomas**: Error al unirse como espectador
