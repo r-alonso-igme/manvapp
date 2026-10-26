@@ -465,7 +465,8 @@ body::after {
     color: var(--text-dark);
 }
 
-.game-controls {
+.game-controls,
+.streaming-section {
     display: block;
     margin-bottom: 2rem;
     background: linear-gradient(135deg, #f8fafc, #e2e8f0);
@@ -477,26 +478,30 @@ body::after {
     border-radius: 1rem;
     position: relative;
     border: 2px solid var(--border-color);
+    box-shadow: none;
 }
 
-.game-controls::before {
+.game-controls::before,
+.streaming-section::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.82);
     border-radius: 1rem;
     z-index: 1;
 }
 
-.game-controls > * {
+.game-controls > *,
+.streaming-section > * {
     position: relative;
     z-index: 2;
 }
 
-.offline-panel summary {
+.offline-panel summary,
+.online-panel summary {
     list-style: none;
     cursor: pointer;
     font-size: 1.15rem;
@@ -508,20 +513,25 @@ body::after {
     padding: 0.25rem 0.5rem;
     border-radius: 0.5rem;
     transition: var(--transition);
+    font-family: var(--font-family);
+    letter-spacing: 0;
 }
 
-.offline-panel summary::-webkit-details-marker {
+.offline-panel summary::-webkit-details-marker,
+.online-panel summary::-webkit-details-marker {
     display: none;
 }
 
-.offline-panel summary::after {
+.offline-panel summary::after,
+.online-panel summary::after {
     content: '▾';
     font-size: 1rem;
     color: var(--primary-color);
     transition: transform 0.2s ease;
 }
 
-.offline-panel[open] summary::after {
+.offline-panel[open] summary::after,
+.online-panel[open] summary::after {
     transform: rotate(180deg);
 }
 
@@ -888,10 +898,6 @@ body::after {
 
 /* Streaming Components */
 .streaming-section {
-    background: var(--background-light);
-    border: 2px solid var(--border-color);
-    border-radius: 1rem;
-    padding: 1rem 1.5rem 1.25rem;
     margin: 2rem 0;
     max-width: 1000px;
     margin-left: auto;
@@ -899,35 +905,6 @@ body::after {
     text-align: center;
     overflow: visible;
     position: relative;
-}
-
-.online-panel summary {
-    list-style: none;
-    cursor: pointer;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.5rem;
-    transition: var(--transition);
-}
-
-.online-panel summary::-webkit-details-marker {
-    display: none;
-}
-
-.online-panel summary::after {
-    content: '▾';
-    font-size: 1rem;
-    color: var(--primary-color);
-    transition: transform 0.2s ease;
-}
-
-.online-panel[open] summary::after {
-    transform: rotate(180deg);
 }
 
 /* Live Streaming Indicator */
@@ -1184,12 +1161,13 @@ body::after {
     }
 }
 
-[data-theme="dark"] .game-controls {
-    /* background: linear-gradient(135deg, #1e293b, #334155); */
+[data-theme="dark"] .game-controls,
+[data-theme="dark"] .streaming-section {
     background-image: url('../images/dark_shirt.jpg');
 }
 
-[data-theme="dark"] .game-controls::before {
+[data-theme="dark"] .game-controls::before,
+[data-theme="dark"] .streaming-section::before {
     background: rgba(15, 23, 42, 0.8);
 }
 
