@@ -60,8 +60,8 @@
                     <div class="team-section" id="teamA">
                         <div class="team-clickable" onclick="addPoint('A')" style="cursor: pointer;">
                             <div class="team-name">
-                                <input type="text" class="team-input" id="teamAName" placeholder="Equipo A"
-                                    value="Equipo A">
+                                <input type="text" class="team-input" id="teamAName" placeholder="Manzanares Voley"
+                                    value="Manzanares Voley">
                             </div>
                             <div class="score-display">
                                 <div class="current-score" id="teamAScore">0</div>
@@ -80,8 +80,8 @@
                     <div class="team-section" id="teamB">
                         <div class="team-clickable" onclick="addPoint('B')" style="cursor: pointer;">
                             <div class="team-name">
-                                <input type="text" class="team-input" id="teamBName" placeholder="Equipo B"
-                                    value="Equipo B">
+                                <input type="text" class="team-input" id="teamBName" placeholder="Equipo contrario"
+                                    value="Equipo contrario">
                             </div>
                             <div class="score-display">
                                 <div class="current-score" id="teamBScore">0</div>
@@ -105,7 +105,7 @@
                         </label>
                     </div>
                     <div class="timeout-section">
-                        <label>Tiempos Manzanares Voley:</label>
+                        <label>Tiempos <span id="teamATimeoutLabel">Manzanares Voley</span>:</label>
                         <div class="timeout-buttons">
                             <button class="timeout-btn" onclick="addTimeout('A')">+</button>
                             <span class="timeout-count" id="teamATimeouts">0</span>
@@ -113,7 +113,7 @@
                         </div>
                     </div>
                     <div class="timeout-section">
-                        <label>Tiempos Equipo contrario:</label>
+                        <label>Tiempos <span id="teamBTimeoutLabel">Equipo contrario</span>:</label>
                         <div class="timeout-buttons">
                             <button class="timeout-btn" onclick="addTimeout('B')">+</button>
                             <span class="timeout-count" id="teamBTimeouts">0</span>

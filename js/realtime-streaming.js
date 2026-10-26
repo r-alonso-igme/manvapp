@@ -6,14 +6,18 @@ class RealtimeScoreboard {
         this.isFirebaseEnabled = false;
         this.database = null;
         this.currentMatchRef = null;
+        this.ownConnectionRef = null;
+        this.listenerRefs = [];
         this.isReferee = false;
         this.matchId = null;
         this.connectedUsers = 0;
         this.uiInitialized = false;
         this.streamingStartTime = null;
         this.streamingTimer = null;
-        
-        this.initFirebase();
+        this.lastSeenNotificationId = null;
+
+        // Resolves once Firebase has finished initializing (successfully or not)
+        this.ready = this.initFirebase();
     }
 
     async initFirebase() {
@@ -27,26 +31,26 @@ class RealtimeScoreboard {
 
             // Load Firebase scripts dynamically
             await this.loadFirebaseScripts();
-            
-            // Initialize Firebase using global variables
-            const app = firebase.initializeApp(firebaseConfig);
+
+            // Initialize Firebase using global variables (reuse the app on retry)
+            const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
             this.database = firebase.database(app);
             this.isFirebaseEnabled = true;
-            
+
             // Store Firebase functions for later use - using global firebase object
             this.firebaseFunctions = {
                 ref: (path) => firebase.database().ref(path),
-                onValue: (ref, callback, options) => ref.on('value', callback, options),
                 set: (ref, value) => ref.set(value),
+                update: (ref, value) => ref.update(value),
                 push: (ref, value) => ref.push(value),
                 onDisconnect: (ref) => ref.onDisconnect(),
                 serverTimestamp: firebase.database.ServerValue.TIMESTAMP
             };
-            
+
             console.log("Firebase initialized successfully!");
             this.setupUI();
             this.showStreamingControls();
-            
+
         } catch (error) {
             console.error("Error initializing Firebase:", error);
             this.showFirebaseError(error.message);
@@ -64,18 +68,18 @@ class RealtimeScoreboard {
             // Load Firebase core
             const firebaseCore = document.createElement('script');
             firebaseCore.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
-            
+
             firebaseCore.onload = () => {
                 // Load Firebase Database
                 const firebaseDatabase = document.createElement('script');
                 firebaseDatabase.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
-                
+
                 firebaseDatabase.onload = () => resolve();
                 firebaseDatabase.onerror = () => reject(new Error('Failed to load Firebase Database'));
-                
+
                 document.head.appendChild(firebaseDatabase);
             };
-            
+
             firebaseCore.onerror = () => reject(new Error('Failed to load Firebase Core'));
             document.head.appendChild(firebaseCore);
         });
@@ -87,7 +91,7 @@ class RealtimeScoreboard {
             return;
         }
         this.uiInitialized = true;
-        
+
         // Add streaming controls to the page
         const streamingHTML = `
             <details id="streaming-controls" class="streaming-section online-panel">
@@ -126,7 +130,7 @@ class RealtimeScoreboard {
                     </div>
                 </div>
             </details>
-            
+
             <!-- Indicador EN VIVO para espectadores -->
             <div id="spectator-live-indicator" class="live-indicator" style="display: none;">
                 <div class="live-animation">🔴 MARCADOR EN VIVO</div>
@@ -134,7 +138,7 @@ class RealtimeScoreboard {
                     <strong>⏱️ Tiempo de Retransmisión:</strong> <span id="spectator-timer">00:00:00</span>
                 </div>
             </div>
-            
+
             <div id="firebase-setup" class="setup-instructions" style="display: none;">
                 <h3>🔧 Configuración Firebase Requerida</h3>
                 <div class="setup-steps">
@@ -163,7 +167,7 @@ class RealtimeScoreboard {
         // Insert after game controls
         const gameControls = document.querySelector('.game-controls');
         gameControls.insertAdjacentHTML('afterend', streamingHTML);
-        
+
         this.bindStreamingEvents();
     }
 
@@ -195,7 +199,7 @@ class RealtimeScoreboard {
 
         // Retry Firebase
         document.getElementById('retryFirebaseBtn')?.addEventListener('click', () => {
-            this.initFirebase();
+            this.ready = this.initFirebase();
         });
 
         // Close QR modal
@@ -221,22 +225,36 @@ class RealtimeScoreboard {
         errorDiv.className = 'firebase-error';
         errorDiv.innerHTML = `
             <h3>❌ Error de Firebase</h3>
-            <p>${message}</p>
+            <p class="firebase-error-message"></p>
             <p>Verifica tu configuración en <code>js/firebase-config.js</code></p>
         `;
-        document.querySelector('.streaming-section').appendChild(errorDiv);
+        errorDiv.querySelector('.firebase-error-message').textContent = message;
+
+        const container = document.querySelector('.streaming-section') || document.querySelector('.game-controls');
+        container?.appendChild(errorDiv);
+    }
+
+    // Subscribe to a ref and remember it so it can be detached when leaving the match
+    listen(ref, callback) {
+        ref.on('value', callback);
+        this.listenerRefs.push(ref);
+    }
+
+    detachListeners() {
+        this.listenerRefs.forEach(ref => ref.off('value'));
+        this.listenerRefs = [];
     }
 
     async startAsReferee() {
         if (!this.isFirebaseEnabled) return;
-        
+
         // Admin authentication
         const adminPassword = prompt('🔐 Contraseña de Administrador:');
         if (!this.verifyAdminPassword(adminPassword)) {
             showNotification('❌ Contraseña incorrecta. Solo administradores pueden iniciar como Organizador.', 'error');
             return;
         }
-        
+
         // Verify scoreboard is available
         if (!window.scoreboard || !window.scoreboard.gameState) {
             showNotification('Error: Marcador no inicializado. Espera un momento e intenta de nuevo.', 'error');
@@ -245,17 +263,16 @@ class RealtimeScoreboard {
 
         this.isReferee = true;
         this.matchId = this.generateMatchId();
-        
-        const { ref, set, onValue, onDisconnect, push } = this.firebaseFunctions;
-        
+
+        const { ref, set, onDisconnect, push } = this.firebaseFunctions;
+
         // Create match reference
         this.currentMatchRef = ref(`matches/${this.matchId}`);
-        
+
         // Initialize match data
-        const initialGameState = window.scoreboard.gameState;
         const streamingStartTime = Date.now();
         await set(this.currentMatchRef, {
-            ...initialGameState,
+            ...window.scoreboard.gameState,
             matchId: this.matchId,
             referee: true,
             createdAt: streamingStartTime,
@@ -265,187 +282,92 @@ class RealtimeScoreboard {
 
         // Track connected users
         const connectionsRef = ref(`matches/${this.matchId}/connections`);
-        const userRef = push(connectionsRef, {
+        this.ownConnectionRef = push(connectionsRef, {
             role: 'referee',
             joinedAt: Date.now()
         });
 
         // Remove user on disconnect
-        onDisconnect(userRef).remove();
+        onDisconnect(this.ownConnectionRef).remove();
 
         // Listen for connection changes
-        onValue(connectionsRef, (snapshot) => {
+        this.listen(connectionsRef, (snapshot) => {
             const connections = snapshot.val() || {};
             this.connectedUsers = Object.keys(connections).length;
             this.updateUI();
         });
-        
+
         // Listen for notifications (referee also receives them for consistency)
         this.setupNotificationListener();
 
         this.updateUI();
         this.startBroadcasting();
-        this.startStreamingTimer();
-        
-        // Initial sync of timeout states
-        this.syncTimeoutStates();
-        this.broadcastGameState();
-        
+        this.startStreamingTimer(streamingStartTime);
+
         showNotification('¡Streaming iniciado como Árbitro! 🔴', 'success');
     }
 
-    async joinAsReferee() {
-        if (!this.isFirebaseEnabled) return;
-
-        // First verify admin password
-        const hasAdminAccess = await this.verifyAdminPasswordPrompt();
-        if (!hasAdminAccess) {
-            return;
-        }
-
-        // Then ask for match ID
-        const matchId = prompt('Ingresa el ID del partido al que te quieres unir como árbitro:');
-        if (!matchId) return;
-
-        try {
-            // Check if match exists
-            const matchRef = this.firebaseFunctions.ref(`matches/${matchId}`);
-            const snapshot = await new Promise((resolve) => {
-                matchRef.once('value', resolve);
-            });
-
-            if (!snapshot.exists()) {
-                showNotification('❌ No se encontró el partido con ese ID.', 'error');
-                return;
-            }
-
-            // Set up as referee
-            this.matchId = matchId;
-            this.currentMatchRef = matchRef;
-            this.isReferee = true;
-
-            // Update match metadata to show new referee
-            const matchData = snapshot.val();
-            await this.firebaseFunctions.set(this.firebaseFunctions.ref(`matches/${this.matchId}/metadata/referee`), true);
-            await this.firebaseFunctions.set(this.firebaseFunctions.ref(`matches/${this.matchId}/metadata/refereeJoinedAt`), this.firebaseFunctions.serverTimestamp);
-
-            // Sync current match state first
-            this.syncMatchFromFirebase(matchData);
-
-            // Set up real-time listeners
-            this.firebaseFunctions.onValue(this.currentMatchRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    this.syncMatchFromFirebase(snapshot.val());
-                }
-            });
-
-            // Track connections for this match
-            const connectionsRef = this.firebaseFunctions.ref(`matches/${this.matchId}/connections`);
-            const userConnectionRef = connectionsRef.push();
-            
-            // Set user as connected with referee role
-            await this.firebaseFunctions.set(userConnectionRef, {
-                timestamp: this.firebaseFunctions.serverTimestamp,
-                role: 'referee',
-                joinedAt: new Date().toISOString()
-            });
-
-            // Remove connection when user disconnects
-            this.firebaseFunctions.onDisconnect(userConnectionRef).remove();
-
-            // Listen for connection count changes
-            this.firebaseFunctions.onValue(connectionsRef, (snapshot) => {
-                const connections = snapshot.val() || {};
-                this.connectedUsers = Object.keys(connections).length;
-                this.updateUI();
-            });
-
-            // Sync current game state to Firebase if needed
-            this.syncTimeoutStates();
-            this.broadcastGameState();
-
-            // Start streaming timer if not already running
-            if (matchData.streamingStartTime && !this.streamingStartTime) {
-                this.streamingStartTime = matchData.streamingStartTime;
-                this.startStreamingTimer();
-            }
-
-            this.updateUI();
-            this.startBroadcasting();
-
-            showNotification(`¡Te has unido como Árbitro al partido ${matchId}! 👨‍⚖️`, 'success');
-            
-        } catch (error) {
-            console.error('Error joining as referee:', error);
-            showNotification('❌ Error al unirse como árbitro. Inténtalo de nuevo.', 'error');
-        }
-    }
-
-    async joinAsSpectator() {
+    joinAsSpectator() {
         if (!this.isFirebaseEnabled) return;
 
         const matchId = prompt('Ingresa el ID del partido:');
-        if (!matchId) return;
+        if (!matchId || !matchId.trim()) return;
+
+        this.joinAsSpectatorWithId(matchId.trim().toUpperCase());
+    }
+
+    async joinAsSpectatorWithId(matchId) {
+        if (!this.isFirebaseEnabled) return;
+
+        const { ref, push, onDisconnect } = this.firebaseFunctions;
+        const matchRef = ref(`matches/${matchId}`);
+
+        // Check the match exists before registering a connection under it
+        let snapshot;
+        try {
+            snapshot = await matchRef.once('value');
+        } catch (error) {
+            console.error('Error joining as spectator:', error);
+            showNotification('❌ Error al conectar con el partido. Inténtalo de nuevo.', 'error');
+            return;
+        }
+
+        if (!snapshot.exists()) {
+            showNotification('Partido no encontrado', 'error');
+            return;
+        }
 
         this.isReferee = false;
         this.matchId = matchId;
-        
-        const { ref, onValue, push, onDisconnect } = this.firebaseFunctions;
-        
-        this.currentMatchRef = ref(`matches/${matchId}`);
-        
-        // Check if match exists
-        this.currentMatchRef.once('value', (snapshot) => {
-            const data = snapshot.val();
-            if (!data) {
-                showNotification('Partido no encontrado', 'error');
-                return;
-            }
-            
-            // Ensure complete game state structure
-            const completeGameState = {
-                ...window.scoreboard.gameState, // Keep existing structure
-                ...data, // Override with Firebase data
-                setHistory: data.setHistory || [], // Ensure setHistory is always an array
-                gameHistory: data.gameHistory || [] // Ensure gameHistory is always an array
-            };
-            
-            // Update local scoreboard with all components
-            window.scoreboard.gameState = completeGameState;
-            window.scoreboard.updateDisplay();
-            
-            // Update timeout checkboxes for spectators
-            this.updateTimeoutCheckboxes(completeGameState);
-            
-            window.scoreboard.updateSetHistory();
-            window.scoreboard.updateGameStatus();
-            
-            // Set streaming start time for spectators and start timer
-            if (data.streamingStartTime) {
-                this.streamingStartTime = data.streamingStartTime;
-                this.startStreamingTimer();
-            }
-        });
+        this.currentMatchRef = matchRef;
+
+        const data = snapshot.val();
+        this.syncMatchFromFirebase(data);
+
+        if (data.streamingStartTime) {
+            this.startStreamingTimer(data.streamingStartTime);
+        }
 
         // Add user to connections
         const connectionsRef = ref(`matches/${matchId}/connections`);
-        const userRef = push(connectionsRef, {
+        this.ownConnectionRef = push(connectionsRef, {
             role: 'spectator',
             joinedAt: Date.now()
         });
 
-        onDisconnect(userRef).remove();
+        onDisconnect(this.ownConnectionRef).remove();
 
         // Listen for connection changes
-        onValue(connectionsRef, (snapshot) => {
+        this.listen(connectionsRef, (snapshot) => {
             const connections = snapshot.val() || {};
             this.connectedUsers = Object.keys(connections).length;
             this.updateUI();
         });
 
+        this.setupNotificationListener();
         this.startListening();
         this.updateUI();
-        
+
         showNotification('¡Conectado como Espectador! 👁️', 'success');
     }
 
@@ -456,109 +378,26 @@ class RealtimeScoreboard {
             return;
         }
 
-        // Override scoreboard methods to broadcast changes
-        const originalAddPoint = window.scoreboard.addPoint ? window.scoreboard.addPoint.bind(window.scoreboard) : null;
-        const originalRemovePoint = window.scoreboard.removePoint ? window.scoreboard.removePoint.bind(window.scoreboard) : null;
-        const originalNewGame = window.scoreboard.newGame ? window.scoreboard.newGame.bind(window.scoreboard) : null;
-        const originalResetSet = window.scoreboard.resetSet ? window.scoreboard.resetSet.bind(window.scoreboard) : null;
-
-        if (originalAddPoint) {
-            window.scoreboard.addPoint = (team) => {
-                originalAddPoint(team);
-                this.broadcastGameState();
-            };
-        }
-
-        if (originalRemovePoint) {
-            window.scoreboard.removePoint = (team) => {
-                originalRemovePoint(team);
-                this.broadcastGameState();
-            };
-        }
-
-        if (originalNewGame) {
-            window.scoreboard.newGame = () => {
-                originalNewGame();
-                this.broadcastGameState();
-            };
-        }
-
-        if (originalResetSet) {
-            window.scoreboard.resetSet = () => {
-                originalResetSet();
-                this.broadcastGameState();
-            };
-        }
-
-        // Listen for timeout checkbox changes
-        const timeoutCheckboxes = document.querySelectorAll('.timeout-indicator input[type="checkbox"]');
-        timeoutCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                this.syncTimeoutStates();
-                this.broadcastGameState();
-            });
-        });
+        // Every state change in the scoreboard (points, timeouts, undo, names...) is sent to Firebase
+        window.scoreboard.onStateChange = () => this.broadcastGameState();
+        this.broadcastGameState();
     }
 
     startListening() {
         if (!this.currentMatchRef) return;
-        
-        this.currentMatchRef.on('value', (snapshot) => {
+
+        this.listen(this.currentMatchRef, (snapshot) => {
             const data = snapshot.val();
-            if (!data) return;
 
-            // Ensure complete game state structure
-            const completeGameState = {
-                ...window.scoreboard.gameState, // Keep existing structure
-                ...data, // Override with Firebase data
-                setHistory: data.setHistory || [], // Ensure setHistory is always an array
-                gameHistory: data.gameHistory || [] // Ensure gameHistory is always an array
-            };
-
-            // Update local scoreboard without triggering broadcasts
-            window.scoreboard.gameState = completeGameState;
-            window.scoreboard.updateDisplay();
-            
-            // Update timeout checkboxes for spectators
-            this.updateTimeoutCheckboxes(completeGameState);
-            
-            // Ensure all UI components are updated for spectators
-            window.scoreboard.updateSetHistory();
-            window.scoreboard.updateGameStatus();
-            
-            // Update streaming start time for spectators if not already set
-            if (data.streamingStartTime && !this.streamingStartTime && !this.isReferee) {
-                this.streamingStartTime = data.streamingStartTime;
-                if (!this.streamingTimer) {
-                    this.startStreamingTimer();
-                }
+            // The referee stopped streaming and the match was removed
+            if (!data) {
+                showNotification('La retransmisión del partido ha finalizado', 'info');
+                this.leaveMatch();
+                return;
             }
+
+            this.syncMatchFromFirebase(data);
         });
-    }
-
-    syncTimeoutStates() {
-        // Sync timeout checkbox states to game state
-        const team1TimeoutCheckbox = document.getElementById('team1Timeout');
-        const team2TimeoutCheckbox = document.getElementById('team2Timeout');
-        
-        if (team1TimeoutCheckbox && team2TimeoutCheckbox) {
-            window.scoreboard.gameState.team1TimeoutActive = team1TimeoutCheckbox.checked;
-            window.scoreboard.gameState.team2TimeoutActive = team2TimeoutCheckbox.checked;
-        }
-    }
-
-    updateTimeoutCheckboxes(gameState) {
-        // Update timeout checkboxes from game state (for spectators)
-        const team1TimeoutCheckbox = document.getElementById('team1Timeout');
-        const team2TimeoutCheckbox = document.getElementById('team2Timeout');
-        
-        if (team1TimeoutCheckbox && gameState.hasOwnProperty('team1TimeoutActive')) {
-            team1TimeoutCheckbox.checked = gameState.team1TimeoutActive || false;
-        }
-        
-        if (team2TimeoutCheckbox && gameState.hasOwnProperty('team2TimeoutActive')) {
-            team2TimeoutCheckbox.checked = gameState.team2TimeoutActive || false;
-        }
     }
 
     syncMatchFromFirebase(data) {
@@ -567,13 +406,13 @@ class RealtimeScoreboard {
         // Ensure complete game state structure
         const completeGameState = {
             teamA: {
-                name: data.teamA?.name || 'Equipo A',
+                name: data.teamA?.name || 'Manzanares Voley',
                 score: data.teamA?.score || 0,
                 sets: data.teamA?.sets || 0,
                 timeouts: data.teamA?.timeouts || 0
             },
             teamB: {
-                name: data.teamB?.name || 'Equipo B',
+                name: data.teamB?.name || 'Equipo contrario',
                 score: data.teamB?.score || 0,
                 sets: data.teamB?.sets || 0,
                 timeouts: data.teamB?.timeouts || 0
@@ -588,47 +427,26 @@ class RealtimeScoreboard {
 
         // Update local scoreboard with synchronized data
         window.scoreboard.gameState = completeGameState;
-        
-        // Update all UI components
+
+        // Update all UI components (names, scores, sets, timeouts, history and status)
         window.scoreboard.updateDisplay();
-        window.scoreboard.updateSetHistory();
-        window.scoreboard.updateGameStatus();
-        
-        // Update timeout checkboxes
-        this.updateTimeoutCheckboxes(completeGameState);
-        
-        // Update team names in inputs
-        document.getElementById('teamAName').value = completeGameState.teamA.name;
-        document.getElementById('teamBName').value = completeGameState.teamB.name;
-        
+
         // Update match type selector
         document.getElementById('matchType').value = completeGameState.matchType.toString();
-        
-        // Update timeout active checkbox
-        document.getElementById('timeoutActive').checked = completeGameState.timeoutActive;
-        
+
         // Sync visual highlights
         document.getElementById('teamA').classList.remove('winner', 'serving');
         document.getElementById('teamB').classList.remove('winner', 'serving');
-        
+
         if (completeGameState.gameEnded) {
             const winner = completeGameState.teamA.sets > completeGameState.teamB.sets ? 'teamA' : 'teamB';
             document.getElementById(winner).classList.add('winner');
-        }
-        
-        // Setup notification listener for spectators (only once)
-        if (!this.isReferee && !this.notificationListenerSetup) {
-            this.setupNotificationListener();
-            this.notificationListenerSetup = true;
         }
     }
 
     async broadcastGameState() {
         if (!this.isReferee || !this.currentMatchRef) return;
-        
-        // Ensure timeout states are synced before broadcasting
-        this.syncTimeoutStates();
-        
+
         const gameState = {
             ...window.scoreboard.gameState,
             matchId: this.matchId,
@@ -637,7 +455,8 @@ class RealtimeScoreboard {
         };
 
         try {
-            await this.currentMatchRef.set(gameState);
+            // update() instead of set() so the connections and notifications children are kept
+            await this.firebaseFunctions.update(this.currentMatchRef, gameState);
         } catch (error) {
             console.error('Error broadcasting game state:', error);
         }
@@ -645,20 +464,20 @@ class RealtimeScoreboard {
 
     async broadcastNotification(message, type = 'info', duration = 5000) {
         if (!this.isReferee || !this.currentMatchRef) return;
-        
+
         const notificationData = {
             message: message,
             type: type,
             duration: duration,
             timestamp: Date.now(),
-            id: Math.random().toString(36).substr(2, 9)
+            id: Math.random().toString(36).slice(2, 11)
         };
 
         try {
             // Send notification to Firebase
             const notificationRef = this.firebaseFunctions.ref(`matches/${this.matchId}/notifications/${notificationData.id}`);
             await this.firebaseFunctions.set(notificationRef, notificationData);
-            
+
             // Auto-remove notification after a short delay to keep Firebase clean
             setTimeout(async () => {
                 try {
@@ -673,18 +492,18 @@ class RealtimeScoreboard {
     }
 
     setupNotificationListener() {
-        if (!this.currentMatchRef) return;
-        
+        if (!this.matchId) return;
+
         const notificationsRef = this.firebaseFunctions.ref(`matches/${this.matchId}/notifications`);
-        
-        this.firebaseFunctions.onValue(notificationsRef, (snapshot) => {
+
+        this.listen(notificationsRef, (snapshot) => {
             const notifications = snapshot.val();
             if (notifications) {
                 // Get the latest notification
                 const notificationKeys = Object.keys(notifications);
                 const latestKey = notificationKeys[notificationKeys.length - 1];
                 const latestNotification = notifications[latestKey];
-                
+
                 // Only show if this notification is newer than our last seen
                 if (!this.lastSeenNotificationId || latestNotification.id !== this.lastSeenNotificationId) {
                     showNotification(latestNotification.message, latestNotification.type, latestNotification.duration);
@@ -695,79 +514,63 @@ class RealtimeScoreboard {
     }
 
     generateMatchId() {
-        return Math.random().toString(36).substr(2, 8).toUpperCase();
+        return Math.random().toString(36).slice(2, 10).toUpperCase();
     }
 
     verifyAdminPassword(password) {
-        // Default admin passwords - change these for production
+        // NOTE: this only hides the UI. The passwords are visible in the published JS and
+        // Firebase rules allow anyone to write, so this is not real access control.
         const adminPasswords = [
             'admin123',
             'referee2024',
             'voleibol'
         ];
-        
-        return adminPasswords.includes(password);
-    }
 
-    async verifyAdminPasswordPrompt() {
-        return new Promise((resolve) => {
-            const adminPassword = prompt('🔐 Contraseña de Administrador:');
-            if (!adminPassword) {
-                resolve(false);
-                return;
-            }
-            
-            if (this.verifyAdminPassword(adminPassword)) {
-                resolve(true);
-            } else {
-                showNotification('❌ Contraseña incorrecta. Acceso denegado.', 'error');
-                resolve(false);
-            }
-        });
+        return adminPasswords.includes(password);
     }
 
     updateUI() {
         document.getElementById('current-match-id').textContent = this.matchId || 'N/A';
         document.getElementById('connected-count').textContent = this.connectedUsers;
         document.getElementById('user-role').textContent = this.isReferee ? 'Árbitro 📡' : 'Espectador 👁️';
-        
+
         // Only show match-info section if there's a match AND user is referee
         document.getElementById('match-info').style.display = (this.matchId && this.isReferee) ? 'block' : 'none';
-        
+
         // Show spectator live indicator if user is spectator in an active match
         document.getElementById('spectator-live-indicator').style.display = (!this.isReferee && this.matchId) ? 'block' : 'none';
-        
+
         // Hide/show controls based on role
         const controls = document.querySelectorAll('.game-controls .btn');
         const scoreButtons = document.querySelectorAll('.score-btn');
         const timeoutButtons = document.querySelectorAll('.timeout-btn');
         const timeoutCheckboxes = document.querySelectorAll('.timeout-indicator input[type="checkbox"]');
-        
+
         if (!this.isReferee && this.matchId) {
             // In spectator mode, hide all administrative controls
             controls.forEach(btn => {
                 const isExportButton = btn.id === 'exportBtn' || btn.id === 'exportHistoryBtn';
                 const isGameControlButton = btn.id === 'newGameBtn' || btn.id === 'undoBtn';
-                const isAdminButton = btn.textContent.includes('Nuevo Set') || 
-                                    btn.textContent.includes('Reiniciar') || 
+                const isAdminButton = btn.textContent.includes('Nuevo Set') ||
+                                    btn.textContent.includes('Reiniciar') ||
                                     btn.textContent.includes('Exportar') ||
                                     btn.textContent.includes('Nuevo Partido') ||
                                     btn.textContent.includes('Deshacer');
                 btn.style.display = (isExportButton || isGameControlButton || isAdminButton) ? 'none' : 'inline-block';
             });
-            
+
             // Hide score control buttons
             scoreButtons.forEach(btn => btn.style.display = 'none');
-            
+
             // Hide timeout buttons
             timeoutButtons.forEach(btn => btn.style.display = 'none');
-            
+
             // Disable timeout checkboxes
             timeoutCheckboxes.forEach(checkbox => {
                 checkbox.disabled = true;
                 checkbox.style.opacity = '0.5';
             });
-            
+
             // Disable team name inputs
             const teamInputs = document.querySelectorAll('.team-input');
             teamInputs.forEach(input => {
@@ -775,14 +578,14 @@ class RealtimeScoreboard {
                 input.style.opacity = '0.7';
                 input.style.backgroundColor = 'var(--border-color)';
             });
-            
+
             // Disable match type selector
             const matchTypeSelect = document.querySelector('.match-type select');
             if (matchTypeSelect) {
                 matchTypeSelect.disabled = true;
                 matchTypeSelect.style.opacity = '0.7';
             }
-            
+
             // Completely disable score sections for spectators
             const scoreSections = document.querySelectorAll('.team-section');
             scoreSections.forEach(section => {
@@ -790,17 +593,14 @@ class RealtimeScoreboard {
                 section.style.opacity = '0.8';
                 section.style.cursor = 'not-allowed';
             });
-            
+
             // Disable all clickable score elements specifically
             const clickableElements = document.querySelectorAll('.team-clickable, .score-display, .current-score, .sets-won');
             clickableElements.forEach(element => {
                 element.style.pointerEvents = 'none';
                 element.style.cursor = 'not-allowed';
-                // Remove onclick handlers
-                element.onclick = null;
-                element.removeAttribute('onclick');
             });
-            
+
             // Add overlay to prevent any interaction
             const scoreboardOverlay = document.createElement('div');
             scoreboardOverlay.id = 'spectator-overlay';
@@ -815,23 +615,23 @@ class RealtimeScoreboard {
                 pointer-events: auto;
                 cursor: not-allowed;
             `;
-            
+
             const scoreboard = document.querySelector('.scoreboard');
             if (scoreboard && !document.getElementById('spectator-overlay')) {
                 scoreboard.style.position = 'relative';
                 scoreboard.appendChild(scoreboardOverlay);
             }
-            
+
             // Hide streaming control buttons in spectator mode
             const streamingButtons = document.querySelectorAll('.streaming-options .btn');
             streamingButtons.forEach(btn => btn.style.display = 'none');
-            
+
             // Hide the entire streaming options section
             const streamingOptions = document.querySelector('.streaming-options');
             if (streamingOptions) {
                 streamingOptions.style.display = 'none';
             }
-            
+
             // Note: match-info div is already hidden by the condition above
         } else {
             // Show all controls for referees or when not in a match
@@ -842,7 +642,7 @@ class RealtimeScoreboard {
                 checkbox.disabled = false;
                 checkbox.style.opacity = '1';
             });
-            
+
             // Enable team name inputs
             const teamInputs = document.querySelectorAll('.team-input');
             teamInputs.forEach(input => {
@@ -850,14 +650,14 @@ class RealtimeScoreboard {
                 input.style.opacity = '1';
                 input.style.backgroundColor = '';
             });
-            
+
             // Enable match type selector
             const matchTypeSelect = document.querySelector('.match-type select');
             if (matchTypeSelect) {
                 matchTypeSelect.disabled = false;
                 matchTypeSelect.style.opacity = '1';
             }
-            
+
             // Re-enable score sections
             const scoreSections = document.querySelectorAll('.team-section');
             scoreSections.forEach(section => {
@@ -865,24 +665,24 @@ class RealtimeScoreboard {
                 section.style.opacity = '1';
                 section.style.cursor = 'pointer';
             });
-            
+
             // Re-enable clickable elements
             const clickableElements = document.querySelectorAll('.team-clickable, .score-display, .current-score, .sets-won');
             clickableElements.forEach(element => {
                 element.style.pointerEvents = 'auto';
                 element.style.cursor = 'pointer';
             });
-            
+
             // Remove spectator overlay
             const spectatorOverlay = document.getElementById('spectator-overlay');
             if (spectatorOverlay) {
                 spectatorOverlay.remove();
             }
-            
+
             // Show streaming control buttons for referees or when not in a match
             const streamingButtons = document.querySelectorAll('.streaming-options .btn');
             streamingButtons.forEach(btn => btn.style.display = 'inline-block');
-            
+
             // Show the streaming options section
             const streamingOptions = document.querySelector('.streaming-options');
             if (streamingOptions) {
@@ -891,24 +691,18 @@ class RealtimeScoreboard {
         }
     }
 
-    async shareMatchWithAuth() {
-        if (!await this.verifyAdminPasswordPrompt()) {
-            showNotification('Acceso denegado. Solo administradores pueden compartir el partido.', 'error');
-            return;
-        }
-        this.shareMatch();
-    }
-
     shareMatch() {
         if (!this.matchId) return;
 
         const shareUrl = `${window.location.origin}${window.location.pathname}?match=${this.matchId}&mode=spectator`;
-        
+
         if (navigator.share) {
             navigator.share({
                 title: 'Partido de Voleibol en Vivo',
                 text: `¡Únete para ver el partido en tiempo real! ID: ${this.matchId}`,
                 url: shareUrl
+            }).catch(() => {
+                // User cancelled the share sheet
             });
         } else {
             navigator.clipboard.writeText(shareUrl).then(() => {
@@ -917,61 +711,66 @@ class RealtimeScoreboard {
         }
     }
 
-    async showQRCodeWithAuth() {
-        if (!await this.verifyAdminPasswordPrompt()) {
-            showNotification('Acceso denegado. Solo administradores pueden mostrar el código QR.', 'error');
-            return;
-        }
-        this.showQRCode();
-    }
-
     showQRCode() {
         const shareUrl = `${window.location.origin}${window.location.pathname}?match=${this.matchId}&mode=spectator`;
-        
+
         // Generate QR code using QR Server API
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
-        
+
         document.getElementById('qr-code').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code">`;
         document.getElementById('share-url').value = shareUrl;
         document.getElementById('qr-modal').style.display = 'flex';
     }
 
-    async stopStreamingWithAuth() {
-        if (!await this.verifyAdminPasswordPrompt()) {
-            showNotification('Acceso denegado. Solo administradores pueden detener el streaming.', 'error');
-            return;
-        }
-        this.stopStreaming();
-    }
-
     stopStreaming() {
+        if (window.scoreboard) {
+            window.scoreboard.onStateChange = null;
+        }
+        this.detachListeners();
+
         if (this.currentMatchRef && this.isReferee) {
             this.currentMatchRef.remove(); // Remove match data
         }
-        
-        this.stopStreamingTimer();
-        this.matchId = null;
-        this.isReferee = false;
-        this.connectedUsers = 0;
-        this.updateUI();
-        
+
+        this.resetMatchState();
         showNotification('Streaming detenido', 'info');
     }
 
-    startStreamingTimer() {
+    // Spectator leaves the match (e.g. the referee stopped streaming)
+    leaveMatch() {
+        this.detachListeners();
+
+        if (this.ownConnectionRef) {
+            this.ownConnectionRef.remove().catch(() => {
+                // The match may already have been removed
+            });
+        }
+
+        this.resetMatchState();
+    }
+
+    resetMatchState() {
+        this.stopStreamingTimer();
+        this.currentMatchRef = null;
+        this.ownConnectionRef = null;
+        this.matchId = null;
+        this.isReferee = false;
+        this.connectedUsers = 0;
+        this.lastSeenNotificationId = null;
+        this.updateUI();
+    }
+
+    startStreamingTimer(startTime = Date.now()) {
         // Stop any existing timer to avoid duplicates
         this.stopStreamingTimer();
-        
-        // For referees, set the start time to now
-        // For spectators, the start time should already be set from Firebase data
-        if (this.isReferee) {
-            this.streamingStartTime = Date.now();
-        }
-        
+
+        // Referees pass their own start time; spectators pass the one stored in Firebase
+        this.streamingStartTime = startTime;
+
         this.streamingTimer = setInterval(() => {
             this.updateStreamingTime();
         }, 1000);
-        
+
         // Immediately update the time
         this.updateStreamingTime();
     }
@@ -988,21 +787,21 @@ class RealtimeScoreboard {
         if (!this.streamingStartTime) {
             return;
         }
-        
+
         const now = Date.now();
-        const elapsed = now - this.streamingStartTime;
+        const elapsed = Math.max(0, now - this.streamingStartTime);
         const hours = Math.floor(elapsed / (1000 * 60 * 60));
         const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
-        
+
         const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
+
         // Update timer for referee
         const timerElement = document.getElementById('streaming-timer');
         if (timerElement) {
             timerElement.textContent = timeString;
         }
-        
+
         // Update timer for spectators
         const spectatorTimerElement = document.getElementById('spectator-timer');
         if (spectatorTimerElement) {
@@ -1011,100 +810,18 @@ class RealtimeScoreboard {
     }
 
     // Check URL parameters for auto-join
-    checkURLParameters() {
+    async checkURLParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const matchId = urlParams.get('match');
         const mode = urlParams.get('mode');
-        
+
         if (matchId && mode === 'spectator') {
-            // Auto-join as spectator with provided match ID
-            setTimeout(() => {
-                this.joinAsSpectatorWithId(matchId);
-            }, 2000); // Wait for Firebase to initialize
+            // Wait for Firebase to finish initializing instead of a fixed delay
+            await this.ready;
+            this.joinAsSpectatorWithId(matchId);
         }
-    }
-
-    async joinAsSpectatorWithId(matchId) {
-        if (!this.isFirebaseEnabled) return;
-
-        this.isReferee = false;
-        this.matchId = matchId;
-        
-        const { ref, onValue, push, onDisconnect } = this.firebaseFunctions;
-        
-        this.currentMatchRef = ref(`matches/${matchId}`);
-        
-        // Check if match exists
-        this.currentMatchRef.once('value', (snapshot) => {
-            const data = snapshot.val();
-            if (!data) {
-                showNotification('Partido no encontrado', 'error');
-                return;
-            }
-            
-            // Ensure complete game state structure
-            const completeGameState = {
-                ...window.scoreboard.gameState, // Keep existing structure
-                ...data, // Override with Firebase data
-                setHistory: data.setHistory || [], // Ensure setHistory is always an array
-                gameHistory: data.gameHistory || [] // Ensure gameHistory is always an array
-            };
-            
-            // Update local scoreboard with all components
-            window.scoreboard.gameState = completeGameState;
-            window.scoreboard.updateDisplay();
-            
-            // Update timeout checkboxes for spectators
-            this.updateTimeoutCheckboxes(completeGameState);
-            
-            window.scoreboard.updateSetHistory();
-            window.scoreboard.updateGameStatus();
-            
-            // Set streaming start time for spectators and start timer
-            if (data.streamingStartTime) {
-                this.streamingStartTime = data.streamingStartTime;
-                this.startStreamingTimer();
-            }
-        });
-
-        // Add user to connections
-        const connectionsRef = ref(`matches/${matchId}/connections`);
-        const userRef = push(connectionsRef, {
-            role: 'spectator',
-            joinedAt: Date.now()
-        });
-
-        onDisconnect(userRef).remove();
-
-        // Listen for connection changes
-        onValue(connectionsRef, (snapshot) => {
-            const connections = snapshot.val() || {};
-            this.connectedUsers = Object.keys(connections).length;
-            this.updateUI();
-        });
-
-        this.startListening();
-        this.updateUI();
-        
-        showNotification('¡Conectado como Espectador! 👁️', 'success');
     }
 }
 
-// Export for use in main script
+// Export for use in main script (script.js creates the instance on DOMContentLoaded)
 window.RealtimeScoreboard = RealtimeScoreboard;
-
-// Auto-initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Wait for the main script to initialize the scoreboard
-    const initializeStreaming = () => {
-        if (window.scoreboard && window.scoreboard.gameState && !window.realtimeScoreboard) {
-            window.realtimeScoreboard = new RealtimeScoreboard();
-            window.realtimeScoreboard.checkURLParameters();
-        } else if (!window.scoreboard || !window.scoreboard.gameState) {
-            // Retry after a short delay
-            setTimeout(initializeStreaming, 500);
-        }
-    };
-    
-    setTimeout(initializeStreaming, 1000);
-});

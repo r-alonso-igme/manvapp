@@ -39,18 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-
-
-    // Initialize animations
-    initScrollAnimations();
 });
-
-// Email validation function
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
 
 // Notification system
 function showNotification(message, type = 'info', duration = 5000) {
@@ -99,25 +88,6 @@ function showNotification(message, type = 'info', duration = 5000) {
     }, duration);
 }
 
-// Scroll animations
-function initScrollAnimations() {
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    // No elements to observe anymore
-}
-
 // Utility functions
 const utils = {
     // Debounce function for performance
@@ -131,41 +101,27 @@ const utils = {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
-    },
-
-    // Get element position
-    getElementPosition: function(element) {
-        const rect = element.getBoundingClientRect();
-        return {
-            top: rect.top + window.pageYOffset,
-            left: rect.left + window.pageXOffset
-        };
-    },
-
-    // Check if element is in viewport
-    isInViewport: function(element) {
-        const rect = element.getBoundingClientRect();
-        return (
-            rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-        );
     }
 };
+
+const DEFAULT_TEAM_A_NAME = 'Manzanares Voley';
+const DEFAULT_TEAM_B_NAME = 'Equipo contrario';
 
 // Volleyball Scoreboard Functionality
 class VolleyballScoreboard {
     constructor() {
+        // Called after every state change (used by realtime streaming to broadcast)
+        this.onStateChange = null;
+
         this.gameState = {
             teamA: {
-                name: 'Manzanares Voley',
+                name: DEFAULT_TEAM_A_NAME,
                 score: 0,
                 sets: 0,
                 timeouts: 0
             },
             teamB: {
-                name: 'Equipo contrario',
+                name: DEFAULT_TEAM_B_NAME,
                 score: 0,
                 sets: 0,
                 timeouts: 0
@@ -199,6 +155,12 @@ class VolleyballScoreboard {
         this.updateGameStatus();
     }
 
+    notifyChange() {
+        if (this.onStateChange) {
+            this.onStateChange(this.gameState);
+        }
+    }
+
     bindEvents() {
         // Control buttons
         document.getElementById('newGameBtn').addEventListener('click', () => this.newMatch());
@@ -213,21 +175,30 @@ class VolleyballScoreboard {
             if (this.gameState.timeoutActive) {
                 this.copyCurrentMatchSummary();
             }
+            this.notifyChange();
         });
-        
+
         // Match type change
         document.getElementById('matchType').addEventListener('change', (e) => {
             this.gameState.matchType = parseInt(e.target.value);
             this.checkMatchEnd();
+            this.notifyChange();
         });
-        
-        // Team name changes
+
+        // Team name changes (debounced so streaming doesn't write on every keystroke)
+        const notifyNameChange = utils.debounce(() => {
+            this.updateTimeoutLabels();
+            this.notifyChange();
+        }, 500);
+
         document.getElementById('teamAName').addEventListener('input', (e) => {
-            this.gameState.teamA.name = e.target.value || 'Manzanares Voley';
+            this.gameState.teamA.name = e.target.value || DEFAULT_TEAM_A_NAME;
+            notifyNameChange();
         });
-        
+
         document.getElementById('teamBName').addEventListener('input', (e) => {
-            this.gameState.teamB.name = e.target.value || 'Equipo contrario';
+            this.gameState.teamB.name = e.target.value || DEFAULT_TEAM_B_NAME;
+            notifyNameChange();
         });
 
         // Keyboard shortcuts
@@ -248,6 +219,7 @@ class VolleyballScoreboard {
 
         this.updateDisplay();
         this.checkSetEnd();
+        this.notifyChange();
     }
 
     removePoint(team) {
@@ -263,6 +235,7 @@ class VolleyballScoreboard {
         }
 
         this.updateDisplay();
+        this.notifyChange();
     }
 
     checkSetEnd() {
@@ -288,7 +261,6 @@ class VolleyballScoreboard {
     }
 
     isDecidingSet() {
-        const maxSets = Math.ceil(this.gameState.matchType / 2);
         return this.gameState.currentSet === this.gameState.matchType;
     }
 
@@ -358,21 +330,20 @@ class VolleyballScoreboard {
         }
 
         showNotification(`🏆 ¡${winnerName} gana el partido!`, 'success');
-        this.updateSetHistory(); // Update set history to show the final set
-        this.updateGameStatus();
+        this.updateDisplay(); // Refresh sets won, set history and status with the final set
     }
 
     newMatch() {
         // Reset all game state
         this.gameState = {
             teamA: {
-                name: document.getElementById('teamAName').value || 'Equipo A',
+                name: document.getElementById('teamAName').value || DEFAULT_TEAM_A_NAME,
                 score: 0,
                 sets: 0,
                 timeouts: 0
             },
             teamB: {
-                name: document.getElementById('teamBName').value || 'Equipo B',
+                name: document.getElementById('teamBName').value || DEFAULT_TEAM_B_NAME,
                 score: 0,
                 sets: 0,
                 timeouts: 0
@@ -392,8 +363,9 @@ class VolleyballScoreboard {
         this.updateDisplay();
         this.updateSetHistory();
         this.updateGameStatus();
-        
+
         showNotification('¡Nuevo partido iniciado!', 'info');
+        this.notifyChange();
     }
 
     resetSet() {
@@ -406,6 +378,7 @@ class VolleyballScoreboard {
         
         this.updateDisplay();
         showNotification('¡Set reiniciado!', 'info');
+        this.notifyChange();
     }
 
     saveStateForUndo() {
@@ -443,6 +416,7 @@ class VolleyballScoreboard {
         
         showNotification('¡Última acción deshecha!', 'info');
         this.gameState.lastAction = null;
+        this.notifyChange();
     }
 
     updateDisplay() {
@@ -467,10 +441,17 @@ class VolleyballScoreboard {
         
         // Update timeout active status
         document.getElementById('timeoutActive').checked = this.gameState.timeoutActive;
-        
+
+        this.updateTimeoutLabels();
+
         // Update set history and game status
         this.updateSetHistory();
         this.updateGameStatus();
+    }
+
+    updateTimeoutLabels() {
+        document.getElementById('teamATimeoutLabel').textContent = this.gameState.teamA.name;
+        document.getElementById('teamBTimeoutLabel').textContent = this.gameState.teamB.name;
     }
 
     updateSetHistory() {
@@ -483,13 +464,20 @@ class VolleyballScoreboard {
             return;
         }
 
+        // Built with textContent: in streaming mode this data comes from Firebase and must not be parsed as HTML
         this.gameState.setHistory.forEach(set => {
             const setDiv = document.createElement('div');
-            setDiv.className = `set-result winner-${set.winner.toLowerCase()}`;
-            setDiv.innerHTML = `
-                <div class="set-number">Set ${set.setNumber}</div>
-                <div class="scores">${set.teamAScore} - ${set.teamBScore}</div>
-            `;
+            setDiv.className = set.winner === 'A' ? 'set-result winner-a' : 'set-result winner-b';
+
+            const setNumber = document.createElement('div');
+            setNumber.className = 'set-number';
+            setNumber.textContent = `Set ${set.setNumber}`;
+
+            const scores = document.createElement('div');
+            scores.className = 'scores';
+            scores.textContent = `${set.teamAScore} - ${set.teamBScore}`;
+
+            setDiv.append(setNumber, scores);
             historyContainer.appendChild(setDiv);
         });
     }
@@ -513,6 +501,13 @@ class VolleyballScoreboard {
         // Prevent if user is typing in an input
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
 
+        // Don't hijack browser shortcuts like Ctrl+A or Ctrl+S
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+        // Spectators can't modify the scoreboard
+        const realtime = window.realtimeScoreboard;
+        if (realtime && realtime.matchId && !realtime.isReferee) return;
+
         switch(e.key.toLowerCase()) {
             case 'a':
                 e.preventDefault();
@@ -532,7 +527,9 @@ class VolleyballScoreboard {
                 break;
             case 'n':
                 e.preventDefault();
-                this.newMatch();
+                if (confirm('¿Empezar un nuevo partido? Se perderá el marcador actual.')) {
+                    this.newMatch();
+                }
                 break;
             case 'u':
                 e.preventDefault();
@@ -540,7 +537,9 @@ class VolleyballScoreboard {
                 break;
             case 'r':
                 e.preventDefault();
-                this.resetSet();
+                if (confirm('¿Reiniciar el set actual?')) {
+                    this.resetSet();
+                }
                 break;
         }
     }
@@ -614,11 +613,12 @@ class VolleyballScoreboard {
         document.getElementById('timeoutActive').checked = true;
         this.updateDisplay();
         this.copyCurrentMatchSummary();
-        
+        this.notifyChange();
+
         const teamName = team === 'A' ? this.gameState.teamA.name : this.gameState.teamB.name;
         const timeoutMsg = `Tiempo solicitado por ${teamName}`;
         showNotification(timeoutMsg, 'info', 30000);
-        
+
         // Broadcast timeout notification to all connected spectators if realtime is enabled
         if (window.realtimeScoreboard && window.realtimeScoreboard.isReferee) {
             window.realtimeScoreboard.broadcastNotification(timeoutMsg, 'info', 30000);
@@ -641,6 +641,7 @@ class VolleyballScoreboard {
         }
 
         this.updateDisplay();
+        this.notifyChange();
     }
 
     exportResult() {
@@ -952,5 +953,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Export for potential module use
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { utils, showNotification, isValidEmail, VolleyballScoreboard };
+    module.exports = { utils, showNotification, VolleyballScoreboard };
 }
