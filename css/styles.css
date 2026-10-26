@@ -472,13 +472,14 @@ body::after {
     background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     background-image: url('../images/white_shirt.jpg');
     background-size: cover;
-    background-position: center;
+    background-position: center center;
     background-repeat: no-repeat;
     padding: 1rem 1.5rem 1.25rem;
     border-radius: 1rem;
     position: relative;
     border: 2px solid var(--border-color);
     box-shadow: none;
+    text-align: center;
 }
 
 .game-controls::before,
@@ -507,14 +508,17 @@ body::after {
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--text-dark);
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    width: 100%;
     padding: 0.25rem 0.5rem;
     border-radius: 0.5rem;
     transition: var(--transition);
     font-family: var(--font-family);
     letter-spacing: 0;
+    text-align: center;
 }
 
 .offline-panel summary::-webkit-details-marker,
