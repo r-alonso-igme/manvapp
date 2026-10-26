@@ -781,7 +781,7 @@ body::after {
     }
 
     .current-score {
-        font-size: 4.5rem;
+        font-size: 6rem;
     }
 
     .game-controls {
@@ -820,7 +820,7 @@ body::after {
 
 @media (max-width: 480px) {
     .current-score {
-        font-size: 5.5rem;
+        font-size: 6.75rem;
     }
 
     .score-btn.plus {
