@@ -891,7 +891,7 @@ body::after {
     background: var(--background-light);
     border: 2px solid var(--border-color);
     border-radius: 1rem;
-    padding: 2rem;
+    padding: 1rem 1.5rem 1.25rem;
     margin: 2rem 0;
     max-width: 1000px;
     margin-left: auto;
@@ -899,6 +899,35 @@ body::after {
     text-align: center;
     overflow: visible;
     position: relative;
+}
+
+.online-panel summary {
+    list-style: none;
+    cursor: pointer;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    transition: var(--transition);
+}
+
+.online-panel summary::-webkit-details-marker {
+    display: none;
+}
+
+.online-panel summary::after {
+    content: '▾';
+    font-size: 1rem;
+    color: var(--primary-color);
+    transition: transform 0.2s ease;
+}
+
+.online-panel[open] summary::after {
+    transform: rotate(180deg);
 }
 
 /* Live Streaming Indicator */
@@ -960,6 +989,7 @@ body::after {
     display: flex;
     justify-content: center;
     gap: 1rem;
+    margin-top: 1rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
     overflow: visible;
