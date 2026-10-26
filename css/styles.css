@@ -902,10 +902,8 @@ body::after {
 
 /* Streaming Components */
 .streaming-section {
-    margin: 2rem 0;
+    margin: 0 auto 1rem auto;
     max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
     text-align: center;
     overflow: visible;
     position: relative;
