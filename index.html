@@ -39,14 +39,16 @@
         <section id="scoreboard_offline" class="section">
             <div class="container">  
                 <!-- Controles del Juego -->
-                <div class="game-controls">
-                    <p>Controles del marcador en modo offline.</p>
-                    <button class="btn btn-primary" id="newGameBtn">Nuevo Partido</button>
-                    <button class="btn btn-secondary" id="resetSetBtn">Reiniciar Set</button>
-                    <button class="btn btn-secondary" id="undoBtn">Deshacer</button>
-                    <button class="btn btn-export" id="exportBtn">Exportar Resultado</button>
-                    <button class="btn btn-history" id="exportHistoryBtn">Exportar Historial</button>
-                </div>
+                <details class="game-controls offline-panel" open>
+                    <summary>Modo offline</summary>
+                    <div class="offline-actions">
+                        <button class="btn btn-primary" id="newGameBtn">Nuevo Partido</button>
+                        <button class="btn btn-secondary" id="resetSetBtn">Reiniciar Set</button>
+                        <button class="btn btn-secondary" id="undoBtn">Deshacer</button>
+                        <button class="btn btn-export" id="exportBtn">Exportar Resultado</button>
+                        <button class="btn btn-history" id="exportHistoryBtn">Exportar Historial</button>
+                    </div>
+                </details>
             </div>
         </section>
         <section id="scoreboard" class="section">
