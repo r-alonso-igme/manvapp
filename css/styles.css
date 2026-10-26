@@ -1092,11 +1092,6 @@ body::after {
 }
 
 /* Dark theme for streaming components */
-[data-theme="dark"] .streaming-section {
-    background: var(--background-light);
-    border-color: var(--border-color);
-}
-
 [data-theme="dark"] .match-details {
     background: var(--white);
     border-color: var(--border-color);
