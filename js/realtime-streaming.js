@@ -90,7 +90,7 @@ class RealtimeScoreboard {
         
         // Add streaming controls to the page
         const streamingHTML = `
-            <details id="streaming-controls" class="streaming-section online-panel" open>
+            <details id="streaming-controls" class="streaming-section online-panel">
                 <summary>Marcador en tiempo real</summary>
                 <div class="streaming-options">
                     <button id="startRefereeBtn" class="btn btn-primary" title="Solo administradores">
