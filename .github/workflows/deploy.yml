@@ -34,6 +34,9 @@ jobs:
       run: |
         mkdir _site
         cp -r index.html favicon.ico MANUAL_USUARIO.md css js images _site/
+        # Show the deployed commit in the footer
+        sed -i "s|<span id=\"appVersion\">dev</span>|<span id=\"appVersion\">${GITHUB_SHA::7}</span>|" _site/index.html
+        grep -q "appVersion\">${GITHUB_SHA::7}<" _site/index.html
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
