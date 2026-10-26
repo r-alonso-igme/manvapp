@@ -91,13 +91,10 @@ class RealtimeScoreboard {
         // Add streaming controls to the page
         const streamingHTML = `
             <div id="streaming-controls" class="streaming-section" style="display: none;">
-                <h3>🔴 Marcador en Tiempo Real</h3>
+                <h3>🔴 Marcador en tiempo real</h3>
                 <div class="streaming-options">
                     <button id="startRefereeBtn" class="btn btn-primary" title="Solo administradores">
-                        👨‍⚖️ Iniciar como Organizador
-                    </button>
-                    <button id="joinRefereeBtn" class="btn btn-primary" title="Solo administradores">
-                        🔗 Unirse como Organizador
+                        📡 Iniciar marcador Online
                     </button>
                     <button id="joinSpectatorBtn" class="btn btn-secondary">
                         👁️ Unirse como Espectador
@@ -105,7 +102,7 @@ class RealtimeScoreboard {
                 </div>
                 <div class="admin-info">
                     <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">
-                        <strong>Nota:</strong> Se requiere contraseña de administrador para iniciar como Organizador
+                        <strong>Nota:</strong> Se requiere contraseña de administrador para iniciar el marcador online
                     </p>
                 </div>
                 <div id="match-info" style="display: none;">
@@ -174,11 +171,6 @@ class RealtimeScoreboard {
         // Referee mode
         document.getElementById('startRefereeBtn')?.addEventListener('click', () => {
             this.startAsReferee();
-        });
-
-        // Join as Referee mode
-        document.getElementById('joinRefereeBtn')?.addEventListener('click', () => {
-            this.joinAsReferee();
         });
 
         // Spectator mode
@@ -737,7 +729,7 @@ class RealtimeScoreboard {
     updateUI() {
         document.getElementById('current-match-id').textContent = this.matchId || 'N/A';
         document.getElementById('connected-count').textContent = this.connectedUsers;
-        document.getElementById('user-role').textContent = this.isReferee ? 'Árbitro 👨‍⚖️' : 'Espectador 👁️';
+        document.getElementById('user-role').textContent = this.isReferee ? 'Árbitro 📡' : 'Espectador 👁️';
         
         // Only show match-info section if there's a match AND user is referee
         document.getElementById('match-info').style.display = (this.matchId && this.isReferee) ? 'block' : 'none';

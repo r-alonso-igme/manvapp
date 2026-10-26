@@ -7,9 +7,10 @@
 
 /* Root Variables */
 :root {
-    --primary-color: #2563eb;
-    --primary-dark: #1d4ed8;
+    --primary-color: #ff5a36;
+    --primary-dark: #e64b2a;
     --secondary-color: #64748b;
+    --score-accent: #ff8a3d;
     --text-dark: #1e293b;
     --text-light: #64748b;
     --background-light: #f8fafc;
@@ -29,9 +30,10 @@
 
 /* Dark Theme Variables */
 [data-theme="dark"] {
-    --primary-color: #3b82f6;
-    --primary-dark: #2563eb;
+    --primary-color: #ff7a45;
+    --primary-dark: #ff5a36;
     --secondary-color: #94a3b8;
+    --score-accent: #ffbf69;
     --text-dark: #f1f5f9;
     --text-light: #cbd5e1;
     --background-light: #1e293b;
@@ -338,6 +340,7 @@ body::after {
     border-radius: 0.5rem;
     transition: var(--transition);
     background: var(--background-light);
+    padding: 0.25rem 0.5rem 0.5rem;
 }
 
 .team-clickable:hover {
@@ -366,18 +369,19 @@ body::after {
 }
 
 .score-display {
-    margin: 1rem 0;
+    margin: 0.25rem 0 0.5rem;
+    padding: 0.15rem 0;
 }
 
 .current-score {
     font-family: var(--score-font);
-    font-size: 5.5rem;
-    font-weight: 900;
-    color: var(--primary-color);
-    line-height: 0.9;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    letter-spacing: -0.02em;
+    font-size: 8.5rem;
+    font-weight: 800;
+    color: var(--score-accent);
+    line-height: 0.8;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 4px 12px rgba(255, 122, 69, 0.25);
+    letter-spacing: -0.08em;
 }
 
 .score-controls {
@@ -729,7 +733,7 @@ body::after {
     }
 
     .current-score {
-        font-size: 3rem;
+        font-size: 4.5rem;
     }
 
     .game-controls {

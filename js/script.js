@@ -210,6 +210,9 @@ class VolleyballScoreboard {
         // Timeout controls
         document.getElementById('timeoutActive').addEventListener('change', (e) => {
             this.gameState.timeoutActive = e.target.checked;
+            if (this.gameState.timeoutActive) {
+                this.copyCurrentMatchSummary();
+            }
         });
         
         // Match type change
@@ -542,6 +545,51 @@ class VolleyballScoreboard {
         }
     }
 
+    getCurrentMatchSummary() {
+        const homeScore = this.gameState.teamA.score;
+        const guestScore = this.gameState.teamB.score;
+        const homeSets = this.gameState.teamA.sets;
+        const guestSets = this.gameState.teamB.sets;
+        const timeoutStatus = this.gameState.timeoutActive ? 'Tiempo ☠️' : '';
+
+        return `${homeScore}:${guestScore} (${homeSets}/${guestSets})${timeoutStatus ? ` ${timeoutStatus}` : ''}`;
+    }
+
+    copyCurrentMatchSummary() {
+        const summary = this.getCurrentMatchSummary();
+
+        if (!summary) {
+            return;
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(summary)
+                .then(() => showNotification(`Resultado copiado: ${summary}`, 'success'))
+                .catch(() => this.fallbackCopy(summary));
+            return;
+        }
+
+        this.fallbackCopy(summary);
+    }
+
+    fallbackCopy(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showNotification(`Resultado copiado: ${text}`, 'success');
+        } catch (error) {
+            console.error('Error copying to clipboard:', error);
+            showNotification('No se pudo copiar el resultado', 'error');
+        }
+        document.body.removeChild(textArea);
+    }
+
     addTimeout(team) {
         // Save state for undo
         this.saveStateForUndo();
@@ -562,7 +610,10 @@ class VolleyballScoreboard {
             return;
         }
 
+        this.gameState.timeoutActive = true;
+        document.getElementById('timeoutActive').checked = true;
         this.updateDisplay();
+        this.copyCurrentMatchSummary();
         
         const teamName = team === 'A' ? this.gameState.teamA.name : this.gameState.teamB.name;
         const timeoutMsg = `Tiempo solicitado por ${teamName}`;
@@ -584,18 +635,16 @@ class VolleyballScoreboard {
             this.gameState.teamB.timeouts--;
         }
 
+        if (this.gameState.teamA.timeouts === 0 && this.gameState.teamB.timeouts === 0) {
+            this.gameState.timeoutActive = false;
+            document.getElementById('timeoutActive').checked = false;
+        }
+
         this.updateDisplay();
     }
 
     exportResult() {
-        // Format: "[points_home]:[points_guest] (sets_home/sets_guest) timeout (yes/not)"
-        const homeScore = this.gameState.teamA.score;
-        const guestScore = this.gameState.teamB.score;
-        const homeSets = this.gameState.teamA.sets;
-        const guestSets = this.gameState.teamB.sets;
-        const timeoutStatus = this.gameState.timeoutActive ? 'Tiempo' : '';
-
-        const exportString = `${homeScore}:${guestScore} (${homeSets}/${guestSets}) ${timeoutStatus}`;
+        const exportString = this.getCurrentMatchSummary();
 
         // Create a modal or notification with the export string
         this.showExportModal(exportString);
@@ -850,7 +899,7 @@ function removeTimeout(team) {
 
 // Theme Management
 function initializeTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     const themeToggle = document.getElementById('themeToggle');
     
     // Apply saved theme
