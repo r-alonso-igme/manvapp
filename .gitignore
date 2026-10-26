@@ -53,3 +53,7 @@ logs
 # Temporary folders
 tmp/
 temp/
+
+# GitHub Pages build output
+_site/
+
