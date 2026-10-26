@@ -264,8 +264,8 @@ body::after {
 
 /* Footer */
 .footer {
-    background: var(--text-dark);
-    color: var(--white);
+    background: #020817;
+    color: #e2e8f0;
     text-align: center;
     padding: 2rem 0;
 }
