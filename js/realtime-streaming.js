@@ -97,7 +97,7 @@ class RealtimeScoreboard {
             <details id="streaming-controls" class="streaming-section online-panel">
                 <summary>Marcador en tiempo real</summary>
                 <div class="streaming-options">
-                    <button id="startRefereeBtn" class="btn btn-primary" title="Solo administradores">
+                    <button id="startRefereeBtn" class="btn btn-primary" title="Solo organizadores">
                         📡 Iniciar marcador Online
                     </button>
                     <button id="joinSpectatorBtn" class="btn btn-secondary">
@@ -106,7 +106,7 @@ class RealtimeScoreboard {
                 </div>
                 <div class="admin-info">
                     <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">
-                        <strong>Nota:</strong> Se requiere contraseña de administrador para iniciar el marcador online
+                        <strong>Nota:</strong> Se requiere contraseña de organizador para iniciar el marcador online
                     </p>
                 </div>
                 <div id="match-info" style="display: none;">
@@ -249,9 +249,9 @@ class RealtimeScoreboard {
         if (!this.isFirebaseEnabled) return;
 
         // Admin authentication
-        const adminPassword = prompt('🔐 Contraseña de Administrador:');
+        const adminPassword = prompt('🔐 Contraseña de Organizador:');
         if (!this.verifyAdminPassword(adminPassword)) {
-            showNotification('❌ Contraseña incorrecta. Solo administradores pueden iniciar como Organizador.', 'error');
+            showNotification('❌ Contraseña incorrecta. Solo los organizadores pueden iniciar el marcador online.', 'error');
             return;
         }
 
@@ -306,7 +306,7 @@ class RealtimeScoreboard {
         this.updateUI();
         this.startBroadcasting();
 
-        showNotification('¡Streaming iniciado como Árbitro! 🔴', 'success');
+        showNotification('¡Streaming iniciado como Organizador! 🔴', 'success');
     }
 
     joinAsSpectator() {
@@ -545,7 +545,7 @@ class RealtimeScoreboard {
     updateUI() {
         document.getElementById('current-match-id').textContent = this.matchId || 'N/A';
         document.getElementById('connected-count').textContent = this.connectedUsers;
-        document.getElementById('user-role').textContent = this.isReferee ? 'Árbitro 📡' : 'Espectador 👁️';
+        document.getElementById('user-role').textContent = this.isReferee ? 'Organizador 📡' : 'Espectador 👁️';
 
         // Only show match-info section if there's a match AND user is referee
         document.getElementById('match-info').style.display = (this.matchId && this.isReferee) ? 'block' : 'none';

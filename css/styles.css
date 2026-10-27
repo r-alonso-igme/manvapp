@@ -1187,7 +1187,7 @@ body::after {
 }
 
 /* #startRefereeBtn:hover::after {
-    content: 'Requiere contraseña de administrador';
+    content: 'Requiere contraseña de organizador';
     position: absolute;
     bottom: -2.5rem;
     left: 50%;
@@ -1204,7 +1204,7 @@ body::after {
 } */
 
 /* #shareMatchBtn:hover::after {
-    content: 'Requiere contraseña de administrador';
+    content: 'Requiere contraseña de organizador';
     position: absolute;
     bottom: -2.5rem;
     left: 50%;
@@ -1221,7 +1221,7 @@ body::after {
 } */
 
 /* #qrCodeBtn:hover::after {
-    content: 'Requiere contraseña de administrador';
+    content: 'Requiere contraseña de organizador';
     position: absolute;
     bottom: -2.5rem;
     left: 50%;
@@ -1238,7 +1238,7 @@ body::after {
 } */
 
 /* #stopStreamingBtn:hover::after {
-    content: 'Requiere contraseña de administrador';
+    content: 'Requiere contraseña de organizador';
     position: absolute;
     bottom: -2.5rem;
     left: 50%;

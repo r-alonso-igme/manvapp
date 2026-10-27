@@ -7,7 +7,7 @@
 1. [Introducción](#introducción)
 2. [Acceso a la Aplicación](#acceso-a-la-aplicación)
 3. [Funciones Principales](#funciones-principales)
-4. [Modo Árbitro](#modo-árbitro)
+4. [Modo Organizador](#-modo-organizador)
 5. [Modo Espectador](#modo-espectador)
 6. [Marcador Offline](#marcador-offline)
 7. [Atajos de Teclado](#atajos-de-teclado)
@@ -19,7 +19,7 @@
 
 ## 🎯 Introducción
 
-**ManvApp** es una aplicación web moderna para llevar el marcador de partidos de voleibol con capacidades de streaming en tiempo real. Permite a árbitros controlar el marcador y compartir el partido en vivo con espectadores que pueden seguir la acción desde cualquier dispositivo.
+**ManvApp** es una aplicación web moderna para llevar el marcador de partidos de voleibol con capacidades de streaming en tiempo real. Permite a los organizadores controlar el marcador y compartir el partido en vivo con espectadores que pueden seguir la acción desde cualquier dispositivo.
 
 ### Características Principales
 - ✅ **Marcador en tiempo real** para voleibol
@@ -48,7 +48,7 @@
 ### Compatibilidad de Dispositivos
 - 💻 **Ordenadores** - Experiencia completa
 - 📱 **Móviles** - Optimizado para uso en cancha
-- 📱 **Tablets** - Ideal para árbitros
+- 📱 **Tablets** - Ideal para organizadores
 - 🖥️ **Smart TV** - Perfecto para espectadores
 
 ---
@@ -92,7 +92,7 @@ Al abrir la aplicación verás:
 
 ### Acceso como Organizador
 1. Haz clic en **"👨‍⚖️ Iniciar como Organizador"**
-2. Ingresa la **contraseña de administrador** (solicita al administrador del sistema)
+2. Ingresa la **contraseña de organizador** (solicítala al administrador del sistema)
 3. Se creará automáticamente un **ID único de partido**
 
 ### Controles de Organizador
@@ -138,7 +138,7 @@ Al abrir la aplicación verás:
 ### Unirse como Espectador
 
 #### Método 1: Código QR
-1. Escanea el **código QR** mostrado por el árbitro
+1. Escanea el **código QR** mostrado por el organizador
 2. Se abrirá automáticamente en modo espectador
 
 #### Método 2: ID de Partido
@@ -147,7 +147,7 @@ Al abrir la aplicación verás:
 3. Confirma para conectarte
 
 #### Método 3: Enlace Directo
-1. Usa el enlace compartido por el árbitro
+1. Usa el enlace compartido por el organizador
 2. Se abrirá directamente en modo espectador
 
 ### Interfaz de Espectador
@@ -163,7 +163,7 @@ Al abrir la aplicación verás:
 - ❌ **Modificar puntajes** - Solo lectura
 - ❌ **Cambiar nombres** de equipos
 - ❌ **Controlar tiempos** - Sin acceso
-- ❌ **Reiniciar partido** - Solo árbitros
+- ❌ **Reiniciar partido** - Solo organizadores
 - ❌ **Deshacer acciones** - Sin permisos
 
 ### Indicadores Visuales
@@ -226,7 +226,7 @@ La aplicación está optimizada para funcionar principalmente como marcador offl
 ### Consejos de Uso
 - 💡 **Más rápido que el ratón** para partidos intensos
 - 💡 **Funciona solo cuando** no estás escribiendo en campos de texto
-- 💡 **Ideal para árbitros** que necesitan velocidad
+- 💡 **Ideal para organizadores** que necesitan velocidad
 - 💡 **Disponible en móviles** con teclado externo
 
 ---
@@ -273,7 +273,7 @@ En dispositivos compatibles:
 - `FIREBASE_SETUP.md` - Instrucciones completas
 - `SECURITY_RULES.md` - Reglas de seguridad
 
-#### Contraseñas de Administrador
+#### Contraseñas de Organizador
 Ubicación: `js/realtime-streaming.js`
 ```javascript
 const adminPasswords = [
@@ -325,7 +325,7 @@ Archivo: `css/styles.css`
 **Síntomas**: Error al unirse como espectador
 **Solución**:
 1. Verifica el **ID del partido** (8 caracteres)
-2. Confirma que el árbitro **sigue en línea**
+2. Confirma que el organizador **sigue en línea**
 3. Intenta de nuevo en unos segundos
 
 #### Marcador no se actualiza
@@ -333,7 +333,7 @@ Archivo: `css/styles.css`
 **Solución**:
 1. Verifica **conexión a internet**
 2. Recarga la página (F5)
-3. Confirma que estás como **árbitro**, no espectador
+3. Confirma que estás como **organizador**, no espectador
 
 ### Problemas de Conectividad
 
@@ -387,7 +387,7 @@ Al reportar un problema, incluye:
 ## 🏆 Casos de Uso Reales
 
 ### Torneos Oficiales
-- 👨‍⚖️ **Árbitro principal** controla marcador oficial
+- 👨‍⚖️ **Organizador** controla el marcador oficial
 - 📱 **Espectadores** siguen desde las gradas
 - 📊 **Exportación inmediata** de resultados
 - 🏆 **Historial completo** para estadísticas
@@ -414,7 +414,7 @@ Al reportar un problema, incluye:
 
 ## 🎯 Consejos y Trucos
 
-### Para Árbitros
+### Para Organizadores
 1. **Practica los atajos** de teclado antes del partido
 2. **Verifica conexión** antes de iniciar streaming
 3. **Comparte QR** en lugar de dictar el ID
@@ -427,11 +427,11 @@ Al reportar un problema, incluye:
 3. **Usa tablet horizontal** para mejor visualización
 4. **Exporta resultado** para compartir en redes sociales
 
-### Para Organizadores
-1. **Capacita árbitros** en el uso de la aplicación
+### Para Clubes y Torneos
+1. **Forma a los organizadores** en el uso de la aplicación
 2. **Prepara WiFi robusto** para eventos grandes
-3. **Designa árbitro backup** que conozca la app
-4. **Documenta contraseñas** de administrador
+3. **Designa un organizador de respaldo** que conozca la app
+4. **Documenta contraseñas** de organizador
 5. **Prueba todo** antes del evento oficial
 6. **Aprovecha la interfaz simplificada** - Menos tiempo de entrenamiento necesario
 7. **Usa modo offline** como respaldo si hay problemas de conexión
@@ -453,7 +453,7 @@ Al reportar un problema, incluye:
 
 ### Seguridad
 - **HTTPS**: Conexión segura siempre
-- **Contraseñas**: Solo para árbitros
+- **Contraseñas**: Solo para organizadores
 - **Datos temporales**: No persistencia a largo plazo
 - **Sin tracking**: Respeto a la privacidad
 
