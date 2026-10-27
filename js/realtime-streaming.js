@@ -646,6 +646,7 @@ class RealtimeScoreboard {
         const isSpectator = !this.isReferee && this.matchId;
         document.querySelector('.game-controls').style.display = isSpectator ? 'none' : '';
         document.getElementById('streaming-controls').style.display = isSpectator ? 'none' : 'block';
+        document.getElementById('manualLink').hidden = Boolean(isSpectator);
 
         // Hide/show controls based on role
         const controls = document.querySelectorAll('.game-controls .btn');
@@ -806,7 +807,7 @@ class RealtimeScoreboard {
         if (navigator.share) {
             navigator.share({
                 title: 'Partido de Voleibol en Vivo',
-                text: `¡Únete para ver el partido en tiempo real! ID: ${this.matchId}`,
+                text: `¡Nuevo diseño, únete para seguir el partido en tiempo real! ID: ${this.matchId}`,
                 url: shareUrl
             }).catch(() => {
                 // User cancelled the share sheet
