@@ -23,11 +23,11 @@
     /* Space between the header, the offline/online panels and the scoreboard */
     --block-gap: 1rem;
 
-    /* Tiger background variables */
-    --tiger-bg-opacity: 0.45;
-    --tiger-bg-blur: 0px;
-    --tiger-bg-brightness: 1.1;
-    --tiger-bg-contrast: 1;
+    /* Page background variables */
+    --page-bg-opacity: 0.45;
+    --page-bg-blur: 0px;
+    --page-bg-brightness: 1.1;
+    --page-bg-contrast: 1;
 }
 
 /* Dark Theme Variables */
@@ -43,11 +43,11 @@
     --border-color: #334155;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     
-    /* Tiger background adjustments for dark theme */
-    --tiger-bg-opacity: 0.4;
-    --tiger-bg-blur: 0px;
-    --tiger-bg-brightness: 0.85;
-    --tiger-bg-contrast: 1;
+    /* Page background adjustments for dark theme */
+    --page-bg-opacity: 0.4;
+    --page-bg-blur: 0px;
+    --page-bg-brightness: 0.85;
+    --page-bg-contrast: 1;
 }
 
 /* Base Styles */
@@ -60,8 +60,9 @@ body {
     line-height: 1.6;
     color: var(--text-dark);
     background-color: var(--white);
-    background-image: url('../images/tiger-background.jpg');
-    background-size: cover;
+    /* Whole club shirt centered; the image is small, so it is never scaled up much */
+    background-image: url('../images/club-shirt.png');
+    background-size: min(90vw, 560px) auto;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
@@ -85,7 +86,7 @@ body::before {
     width: 100%;
     height: 100%;
     background: var(--white);
-    opacity: calc(1 - var(--tiger-bg-opacity));
+    opacity: calc(1 - var(--page-bg-opacity));
     pointer-events: none;
     z-index: -1;
 }
@@ -97,13 +98,13 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../images/tiger-background.jpg');
-    background-size: cover;
+    background-image: url('../images/club-shirt.png');
+    background-size: min(90vw, 560px) auto;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
-    filter: blur(var(--tiger-bg-blur)) brightness(var(--tiger-bg-brightness)) contrast(var(--tiger-bg-contrast));
-    opacity: var(--tiger-bg-opacity);
+    filter: blur(var(--page-bg-blur)) brightness(var(--page-bg-brightness)) contrast(var(--page-bg-contrast));
+    opacity: var(--page-bg-opacity);
     pointer-events: none;
     z-index: -2;
 }
@@ -1354,32 +1355,32 @@ body::after {
     border-color: rgba(59, 130, 246, 0.4);
 }
 
-/* Tiger Background Control Classes */
-.tiger-bg-subtle {
-    --tiger-bg-opacity: 0.03;
+/* Page Background Control Classes */
+.page-bg-subtle {
+    --page-bg-opacity: 0.03;
 }
 
-.tiger-bg-normal {
-    --tiger-bg-opacity: 0.08;
+.page-bg-normal {
+    --page-bg-opacity: 0.08;
 }
 
-.tiger-bg-strong {
-    --tiger-bg-opacity: 0.15;
+.page-bg-strong {
+    --page-bg-opacity: 0.15;
 }
 
-.tiger-bg-off {
-    --tiger-bg-opacity: 0;
+.page-bg-off {
+    --page-bg-opacity: 0;
 }
 
 /* For Dark Theme */
-[data-theme="dark"] .tiger-bg-subtle {
-    --tiger-bg-opacity: 0.02;
+[data-theme="dark"] .page-bg-subtle {
+    --page-bg-opacity: 0.02;
 }
 
-[data-theme="dark"] .tiger-bg-normal {
-    --tiger-bg-opacity: 0.05;
+[data-theme="dark"] .page-bg-normal {
+    --page-bg-opacity: 0.05;
 }
 
-[data-theme="dark"] .tiger-bg-strong {
-    --tiger-bg-opacity: 0.10;
+[data-theme="dark"] .page-bg-strong {
+    --page-bg-opacity: 0.10;
 }
