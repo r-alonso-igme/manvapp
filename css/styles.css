@@ -62,7 +62,7 @@ body {
     background-color: var(--white);
     /* Repeating cat faces, like the club shirt */
     background-image: url('../images/cats-pattern.svg');
-    background-size: 300px;
+    background-size: 400px;
     background-position: center;
     background-attachment: fixed;
     background-repeat: repeat;
@@ -99,7 +99,7 @@ body::after {
     width: 100%;
     height: 100%;
     background-image: url('../images/cats-pattern.svg');
-    background-size: 300px;
+    background-size: 400px;
     background-position: center;
     background-attachment: fixed;
     background-repeat: repeat;
