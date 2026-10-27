@@ -304,24 +304,17 @@ body::after {
 }
 
 /* Volleyball Scoreboard Styles */
+/* No background: the page background shows through; each team-section has an opaque card */
 .scoreboard {
     display: flex;
     justify-content: center;
     gap: 2rem;
-    background: var(--white);
     border-radius: 1rem;
     padding: 2rem;
-    box-shadow: var(--shadow);
     max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
     position: relative;
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);
-}
-
-[data-theme="dark"] .scoreboard {
-    background: rgba(15, 23, 42, 0.95);
 }
 
 .team-section {
@@ -329,6 +322,15 @@ body::after {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+}
+
+[data-theme="dark"] .team-section {
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid var(--border-color);
 }
 
 .team-clickable {
@@ -847,11 +849,6 @@ body::after {
 /* Dark Mode Enhancements */
 [data-theme="dark"] .btn {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="dark"] .scoreboard {
-    background: var(--background-light);
-    border: 2px solid var(--border-color);
 }
 
 [data-theme="dark"] .team-clickable {
