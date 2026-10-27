@@ -238,6 +238,15 @@ body::after {
     padding: 4rem 0;
 }
 
+/* Keep the offline/online panels close to the scoreboard below them */
+#scoreboard_offline {
+    padding-bottom: 0;
+}
+
+#scoreboard {
+    padding-top: 0.5rem;
+}
+
 .section-title {
     font-size: 2.5rem;
     text-align: center;
@@ -384,7 +393,7 @@ body::after {
 
 .current-score {
     font-family: var(--score-font);
-    font-size: 8.5rem;
+    font-size: 9.5rem;
     font-weight: 800;
     color: var(--score-accent);
     line-height: 0.8;
@@ -408,16 +417,6 @@ body::after {
     font-weight: 700;
     cursor: pointer;
     transition: var(--transition);
-}
-
-.score-btn.plus {
-    background: #10b981;
-    color: white;
-}
-
-.score-btn.plus:hover {
-    background: #059669;
-    transform: scale(1.1);
 }
 
 .score-btn.minus {
@@ -772,7 +771,7 @@ body::after {
     }
 
     .current-score {
-        font-size: 6rem;
+        font-size: 6.75rem;
     }
 
     .game-controls {
@@ -811,14 +810,7 @@ body::after {
 
 @media (max-width: 480px) {
     .current-score {
-        font-size: 6.75rem;
-    }
-
-    .score-btn.plus {
-        width: 50px;
-        height: 50px;
-        font-size: 1.35rem;
-        display: none;
+        font-size: 7.5rem;
     }
 
     .score-btn.minus {
