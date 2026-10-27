@@ -1,6 +1,11 @@
 // Firebase Realtime Streaming Module
 import firebaseConfig from './firebase-config.js';
 
+// localStorage key used to resume the organizer session after a reload
+const ORGANIZER_SESSION_KEY = 'manvapp.organizerSession';
+// Older sessions are discarded instead of resumed (e.g. a match left open yesterday)
+const ORGANIZER_SESSION_MAX_AGE = 12 * 60 * 60 * 1000;
+
 class RealtimeScoreboard {
     constructor() {
         this.isFirebaseEnabled = false;
@@ -15,6 +20,12 @@ class RealtimeScoreboard {
         this.streamingStartTime = null;
         this.streamingTimer = null;
         this.lastSeenNotificationId = null;
+
+        // Asks for confirmation before reloading/closing the page while organizing
+        this.beforeUnloadHandler = (e) => {
+            e.preventDefault();
+            e.returnValue = '';
+        };
 
         // Resolves once Firebase has finished initializing (successfully or not)
         this.ready = this.initFirebase();
@@ -264,7 +275,7 @@ class RealtimeScoreboard {
         this.isReferee = true;
         this.matchId = this.generateMatchId();
 
-        const { ref, set, onDisconnect, push } = this.firebaseFunctions;
+        const { ref, set } = this.firebaseFunctions;
 
         // Create match reference
         this.currentMatchRef = ref(`matches/${this.matchId}`);
@@ -279,6 +290,15 @@ class RealtimeScoreboard {
             streamingStartTime: streamingStartTime,
             lastUpdate: Date.now()
         });
+
+        this.beginOrganizing(streamingStartTime);
+
+        showNotification('¡Streaming iniciado como Organizador! 🔴', 'success');
+    }
+
+    // Shared by a new match and a resumed one: connections, listeners, timer and broadcasting
+    beginOrganizing(streamingStartTime) {
+        const { ref, onDisconnect, push } = this.firebaseFunctions;
 
         // Track connected users
         const connectionsRef = ref(`matches/${this.matchId}/connections`);
@@ -306,7 +326,76 @@ class RealtimeScoreboard {
         this.updateUI();
         this.startBroadcasting();
 
-        showNotification('¡Streaming iniciado como Organizador! 🔴', 'success');
+        this.saveOrganizerSession();
+        window.addEventListener('beforeunload', this.beforeUnloadHandler);
+    }
+
+    // After a reload, become organizer again of the match this browser was running
+    async resumeOrganizerSession() {
+        if (!this.isFirebaseEnabled || this.matchId) return;
+
+        const session = this.loadOrganizerSession();
+        if (!session) return;
+
+        if (Date.now() - session.savedAt > ORGANIZER_SESSION_MAX_AGE) {
+            this.clearOrganizerSession();
+            return;
+        }
+
+        const matchRef = this.firebaseFunctions.ref(`matches/${session.matchId}`);
+        let snapshot;
+        try {
+            snapshot = await matchRef.once('value');
+        } catch (error) {
+            console.error('Error resuming organizer session:', error);
+            return;
+        }
+
+        // The match was stopped (or removed) in the meantime
+        if (!snapshot.exists()) {
+            this.clearOrganizerSession();
+            return;
+        }
+
+        const data = snapshot.val();
+        this.isReferee = true;
+        this.matchId = session.matchId;
+        this.currentMatchRef = matchRef;
+
+        // Restore the scoreboard as it was in Firebase before the reload
+        this.syncMatchFromFirebase(data);
+        this.beginOrganizing(data.streamingStartTime || Date.now());
+
+        document.getElementById('streaming-controls').open = true;
+        showNotification(`Marcador en vivo recuperado (partido ${this.matchId}) 🔴`, 'success');
+    }
+
+    saveOrganizerSession() {
+        try {
+            localStorage.setItem(ORGANIZER_SESSION_KEY, JSON.stringify({
+                matchId: this.matchId,
+                savedAt: Date.now()
+            }));
+        } catch (error) {
+            // Storage may be unavailable (private mode); resuming just won't work
+        }
+    }
+
+    loadOrganizerSession() {
+        try {
+            const session = JSON.parse(localStorage.getItem(ORGANIZER_SESSION_KEY));
+            return session && session.matchId ? session : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    clearOrganizerSession() {
+        try {
+            localStorage.removeItem(ORGANIZER_SESSION_KEY);
+        } catch (error) {
+            // Nothing to clear
+        }
     }
 
     joinAsSpectator() {
@@ -745,6 +834,8 @@ class RealtimeScoreboard {
             this.currentMatchRef.remove(); // Remove match data
         }
 
+        // Stopped on purpose: don't resume this match after a reload
+        this.clearOrganizerSession();
         this.resetMatchState();
         showNotification('Streaming detenido', 'info');
     }
@@ -763,6 +854,7 @@ class RealtimeScoreboard {
     }
 
     resetMatchState() {
+        window.removeEventListener('beforeunload', this.beforeUnloadHandler);
         this.stopStreamingTimer();
         this.currentMatchRef = null;
         this.ownConnectionRef = null;
@@ -823,16 +915,21 @@ class RealtimeScoreboard {
     }
 
     // Check URL parameters for auto-join
+    // (or resume the organizer session if this browser was running a match before a reload)
     async checkURLParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const matchId = urlParams.get('match');
         const mode = urlParams.get('mode');
 
+        // Wait for Firebase to finish initializing instead of a fixed delay
+        await this.ready;
+
         if (matchId && mode === 'spectator') {
-            // Wait for Firebase to finish initializing instead of a fixed delay
-            await this.ready;
             this.joinAsSpectatorWithId(matchId);
+            return;
         }
+
+        this.resumeOrganizerSession();
     }
 }
 

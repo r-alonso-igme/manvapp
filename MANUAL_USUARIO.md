@@ -95,6 +95,8 @@ Al abrir la aplicación verás:
 2. Ingresa la **contraseña de organizador** (solicítala al administrador del sistema)
 3. Se creará automáticamente un **ID único de partido**
 
+> 💡 **¿Has recargado la página sin querer?** No pasa nada: al volver a abrirla en el mismo navegador recuperas automáticamente el marcador en vivo como organizador, con el resultado tal como estaba. Para terminar de verdad, usa **"⏹️ Detener Streaming"**.
+
 ### Controles de Organizador
 
 #### Marcador Básico
