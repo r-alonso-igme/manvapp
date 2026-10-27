@@ -238,11 +238,6 @@ body::after {
     padding: 4rem 0;
 }
 
-.section:nth-child(even) {
-    background: var(--background-light);
-    backdrop-filter: blur(5px);
-}
-
 .section-title {
     font-size: 2.5rem;
     text-align: center;
