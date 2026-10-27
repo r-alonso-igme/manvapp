@@ -300,9 +300,11 @@ class RealtimeScoreboard {
         // Listen for notifications (referee also receives them for consistency)
         this.setupNotificationListener();
 
+        // Start the timer before broadcasting: every broadcast sends this.streamingStartTime,
+        // so broadcasting first would overwrite the start time in Firebase with null
+        this.startStreamingTimer(streamingStartTime);
         this.updateUI();
         this.startBroadcasting();
-        this.startStreamingTimer(streamingStartTime);
 
         showNotification('¡Streaming iniciado como Árbitro! 🔴', 'success');
     }
@@ -343,10 +345,7 @@ class RealtimeScoreboard {
 
         const data = snapshot.val();
         this.syncMatchFromFirebase(data);
-
-        if (data.streamingStartTime) {
-            this.startStreamingTimer(data.streamingStartTime);
-        }
+        this.syncStreamingTimer(data);
 
         // Add user to connections
         const connectionsRef = ref(`matches/${matchId}/connections`);
@@ -397,7 +396,17 @@ class RealtimeScoreboard {
             }
 
             this.syncMatchFromFirebase(data);
+            this.syncStreamingTimer(data);
         });
+    }
+
+    // Spectators: start (or correct) the timer whenever the start time appears or changes in Firebase
+    syncStreamingTimer(data) {
+        if (this.isReferee || !data.streamingStartTime) return;
+
+        if (data.streamingStartTime !== this.streamingStartTime || !this.streamingTimer) {
+            this.startStreamingTimer(data.streamingStartTime);
+        }
     }
 
     syncMatchFromFirebase(data) {
@@ -450,9 +459,13 @@ class RealtimeScoreboard {
         const gameState = {
             ...window.scoreboard.gameState,
             matchId: this.matchId,
-            streamingStartTime: this.streamingStartTime,
             lastUpdate: Date.now()
         };
+
+        // Never send a null start time: with update() it would delete the one stored in Firebase
+        if (this.streamingStartTime) {
+            gameState.streamingStartTime = this.streamingStartTime;
+        }
 
         try {
             // update() instead of set() so the connections and notifications children are kept
