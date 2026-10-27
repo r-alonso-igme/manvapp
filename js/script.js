@@ -456,79 +456,29 @@ class VolleyballScoreboard {
         document.getElementById('teamBTimeoutLabel').textContent = this.gameState.teamB.name;
     }
 
-    // Scroll the team name when that team scores a point. Detected from the displayed score
+    // Show a "+1" next to the score when that team scores a point. Detected from the displayed score
     // (one more point in the same set), so spectators see it too; removing points doesn't trigger it
     announceScoredPoints() {
         const { teamA, teamB, currentSet } = this.gameState;
         const previous = this.lastShownScores;
 
         if (previous && previous.set === currentSet) {
-            if (teamA.score === previous.a + 1) this.scrollTeamName('teamAName');
-            if (teamB.score === previous.b + 1) this.scrollTeamName('teamBName');
+            if (teamA.score === previous.a + 1) this.showPlusOne('teamAScore');
+            if (teamB.score === previous.b + 1) this.showPlusOne('teamBScore');
         }
 
         this.lastShownScores = { a: teamA.score, b: teamB.score, set: currentSet };
     }
 
-    // One full pass of the name from right to left in the highlight colour, then back to normal
-    scrollTeamName(inputId) {
-        const NAME_SCROLL_SPEED = 150; // px per second
-        const input = document.getElementById(inputId);
-
-        if (document.activeElement === input) return; // being edited
-
-        // Reduced motion: no movement, just show the highlight colour for a moment
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            this.nameHighlightTimers = this.nameHighlightTimers || {};
-            clearTimeout(this.nameHighlightTimers[inputId]);
-            input.classList.add('is-highlighted');
-            this.nameHighlightTimers[inputId] = setTimeout(() => {
-                input.classList.remove('is-highlighted');
-            }, 1500);
-            return;
-        }
-
-        // The input text can't be animated, so a copy scrolls over it while it's hidden
-        const container = input.parentElement;
-        let overlay = container.querySelector('.team-name-scroll');
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.className = 'team-name-scroll';
-            overlay.setAttribute('aria-hidden', 'true');
-            overlay.appendChild(document.createElement('span'));
-            container.appendChild(overlay);
-        }
-
-        // Cover the inside of the input (it can change size with the screen)
-        Object.assign(overlay.style, {
-            left: `${input.offsetLeft + input.clientLeft}px`,
-            top: `${input.offsetTop + input.clientTop}px`,
-            width: `${input.clientWidth}px`,
-            height: `${input.clientHeight}px`
-        });
-
-        const text = overlay.firstChild;
-        text.textContent = input.value;
-        text.style.font = getComputedStyle(input).font;
-
-        this.nameAnimations = this.nameAnimations || {};
-        this.nameAnimations[inputId]?.cancel(); // a new point restarts the pass
-
-        input.classList.add('is-scrolling');
-        overlay.classList.add('active');
-
-        const start = overlay.clientWidth;
-        const end = -text.offsetWidth;
-        const animation = text.animate(
-            [{ transform: `translateX(${start}px)` }, { transform: `translateX(${end}px)` }],
-            { duration: ((start - end) / NAME_SCROLL_SPEED) * 1000, easing: 'linear' }
-        );
-        this.nameAnimations[inputId] = animation;
-
-        animation.onfinish = () => {
-            input.classList.remove('is-scrolling');
-            overlay.classList.remove('active');
-        };
+    // The "+1" floats up and fades out (CSS animation), then removes itself
+    showPlusOne(scoreId) {
+        const scoreDisplay = document.getElementById(scoreId).parentElement;
+        const plusOne = document.createElement('span');
+        plusOne.className = 'plus-one';
+        plusOne.textContent = '+1';
+        plusOne.setAttribute('aria-hidden', 'true');
+        plusOne.addEventListener('animationend', () => plusOne.remove());
+        scoreDisplay.appendChild(plusOne);
     }
 
     updateSetHistory() {

@@ -386,41 +386,55 @@ body::after {
     border-color: var(--primary-color);
 }
 
-/* Team name pass when a point is scored (see scrollTeamName in script.js) */
-.team-name {
-    position: relative;
-}
-
-.team-input.is-scrolling {
-    color: transparent;
-}
-
-/* Used instead of the pass when the device asks for reduced motion */
-.team-input.is-highlighted {
-    color: var(--primary-color);
-}
-
-.team-name-scroll {
-    display: none;
-    position: absolute;
-    align-items: center;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.team-name-scroll.active {
-    display: flex;
-}
-
-.team-name-scroll span {
-    flex-shrink: 0;
-    white-space: nowrap;
-    color: var(--primary-color);
-}
-
 .score-display {
+    position: relative;
     margin: 0.25rem 0 0.5rem;
     padding: 0.15rem 0;
+}
+
+/* "+1" shown when a team scores (see showPlusOne in script.js) */
+.plus-one {
+    position: absolute;
+    top: 0;
+    right: 8%;
+    font-family: var(--score-font);
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--primary-color);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+    animation: plus-one-float 1.1s ease-out forwards;
+}
+
+@keyframes plus-one-float {
+    0% {
+        opacity: 0;
+        transform: translateY(0.5em) scale(0.8);
+    }
+    15% {
+        opacity: 1;
+        transform: translateY(0) scale(1.15);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-1.2em) scale(1);
+    }
+}
+
+/* Reduced motion: the "+1" appears and fades without moving */
+@keyframes plus-one-fade {
+    0%, 60% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .plus-one {
+        animation-name: plus-one-fade;
+    }
 }
 
 .current-score {
@@ -843,6 +857,11 @@ body::after {
 @media (max-width: 480px) {
     .current-score {
         font-size: 7.5rem;
+    }
+
+    .plus-one {
+        font-size: 2.25rem;
+        right: 4%;
     }
 
     .score-btn.minus {
