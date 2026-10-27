@@ -466,36 +466,13 @@ body::after {
 .streaming-section {
     display: block;
     margin-bottom: 2rem;
-    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-    background-image: url('../images/white_shirt.jpg');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
+    /* Same card as .team-section */
+    background: rgba(255, 255, 255, 0.95);
     padding: 1rem 1.5rem 1.25rem;
     border-radius: 1rem;
     position: relative;
-    border: 2px solid var(--border-color);
-    box-shadow: none;
+    box-shadow: var(--shadow);
     text-align: center;
-}
-
-.game-controls::before,
-.streaming-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.82);
-    border-radius: 1rem;
-    z-index: 1;
-}
-
-.game-controls > *,
-.streaming-section > * {
-    position: relative;
-    z-index: 2;
 }
 
 .offline-panel summary,
@@ -1152,12 +1129,8 @@ body::after {
 
 [data-theme="dark"] .game-controls,
 [data-theme="dark"] .streaming-section {
-    background-image: url('../images/dark_shirt.jpg');
-}
-
-[data-theme="dark"] .game-controls::before,
-[data-theme="dark"] .streaming-section::before {
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid var(--border-color);
 }
 
 /* Admin Authentication Styles */
