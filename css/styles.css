@@ -22,10 +22,10 @@
     --transition: all 0.3s ease;
     
     /* Tiger background variables */
-    --tiger-bg-opacity: 0.08;
+    --tiger-bg-opacity: 0.45;
     --tiger-bg-blur: 0px;
-    --tiger-bg-brightness: 1.2;
-    --tiger-bg-contrast: 0.8;
+    --tiger-bg-brightness: 1.1;
+    --tiger-bg-contrast: 1;
 }
 
 /* Dark Theme Variables */
@@ -42,10 +42,10 @@
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     
     /* Tiger background adjustments for dark theme */
-    --tiger-bg-opacity: 0.05;
-    --tiger-bg-blur: 1px;
-    --tiger-bg-brightness: 0.7;
-    --tiger-bg-contrast: 0.6;
+    --tiger-bg-opacity: 0.4;
+    --tiger-bg-blur: 0px;
+    --tiger-bg-brightness: 0.85;
+    --tiger-bg-contrast: 1;
 }
 
 /* Base Styles */
