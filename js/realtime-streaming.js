@@ -642,6 +642,11 @@ class RealtimeScoreboard {
         // Show spectator live indicator if user is spectator in an active match
         document.getElementById('spectator-live-indicator').style.display = (!this.isReferee && this.matchId) ? 'block' : 'none';
 
+        // Spectators don't see the offline and online panels at all
+        const isSpectator = !this.isReferee && this.matchId;
+        document.querySelector('.game-controls').style.display = isSpectator ? 'none' : '';
+        document.getElementById('streaming-controls').style.display = isSpectator ? 'none' : 'block';
+
         // Hide/show controls based on role
         const controls = document.querySelectorAll('.game-controls .btn');
         const scoreButtons = document.querySelectorAll('.score-btn');
