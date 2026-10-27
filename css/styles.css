@@ -213,12 +213,6 @@ body::after {
     80%, 100% { transform: translateY(0) rotate(360deg); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .nav-brand.celebrate .nav-logo,
-    .nav-brand.celebrate .nav-ball {
-        animation: none;
-    }
-}
 
 .nav-menu {
     display: none;
@@ -481,22 +475,6 @@ body::after {
     100% {
         opacity: 0;
         transform: translateY(-1.2em) scale(1);
-    }
-}
-
-/* Reduced motion: the "+1" appears and fades without moving */
-@keyframes plus-one-fade {
-    0%, 60% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .plus-one {
-        animation-name: plus-one-fade;
     }
 }
 
