@@ -699,6 +699,7 @@ body::after {
 }
 
 .set-history h3 {
+    font-size: 1.17rem; /* keep in sync with .status-text */
     color: var(--text-dark);
     margin-bottom: 1rem;
     text-align: center;
@@ -747,7 +748,7 @@ body::after {
 }
 
 .status-text {
-    font-size: 1.5rem;
+    font-size: 1.17rem; /* same as the .set-history h3 title */
     font-weight: 600;
     padding: 1rem 2rem;
     border-radius: 2rem;
