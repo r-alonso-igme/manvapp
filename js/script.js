@@ -204,50 +204,6 @@ class VolleyballScoreboard {
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyPress(e));
 
-        // Scroll team names that don't fit in their box
-        this.startNameScroll(document.getElementById('teamAName'));
-        this.startNameScroll(document.getElementById('teamBName'));
-    }
-
-    // Moves the text of an overflowing input back and forth (paused while the user edits it)
-    startNameScroll(input) {
-        const SPEED = 0.5;          // px per frame (~30 px/s)
-        const PAUSE_FRAMES = 90;    // ~1.5 s pause at each end
-        let position = 0;
-        let direction = 1;
-        let pause = PAUSE_FRAMES;
-
-        input.addEventListener('blur', () => {
-            position = 0;
-            direction = 1;
-            pause = PAUSE_FRAMES;
-        });
-
-        const step = () => {
-            const maxScroll = input.scrollWidth - input.clientWidth;
-
-            if (document.activeElement === input) {
-                // The user is editing: leave the scroll where the caret puts it
-            } else if (maxScroll <= 0) {
-                position = 0;
-                input.scrollLeft = 0;
-            } else if (pause > 0) {
-                pause--;
-                input.scrollLeft = position;
-            } else {
-                position += direction * SPEED;
-                if (position >= maxScroll || position <= 0) {
-                    position = Math.min(Math.max(position, 0), maxScroll);
-                    direction = -direction;
-                    pause = PAUSE_FRAMES;
-                }
-                input.scrollLeft = position;
-            }
-
-            requestAnimationFrame(step);
-        };
-
-        requestAnimationFrame(step);
     }
 
     addPoint(team) {
@@ -488,7 +444,7 @@ class VolleyballScoreboard {
         document.getElementById('timeoutActive').checked = this.gameState.timeoutActive;
 
         this.updateTimeoutLabels();
-        this.updateNameColors();
+        this.announceScoredPoints();
 
         // Update set history and game status
         this.updateSetHistory();
@@ -500,20 +456,79 @@ class VolleyballScoreboard {
         document.getElementById('teamBTimeoutLabel').textContent = this.gameState.teamB.name;
     }
 
-    // Each point changes the team name colour (derived from the score, so undo and spectators match)
-    updateNameColors() {
-        const NAME_COLORS = 6; // must match the .team-input[data-color] rules in styles.css
-        const setColor = (inputId, score) => {
-            const input = document.getElementById(inputId);
-            if (score > 0) {
-                input.dataset.color = (score - 1) % NAME_COLORS;
-            } else {
-                delete input.dataset.color;
-            }
-        };
+    // Scroll the team name when that team scores a point. Detected from the displayed score
+    // (one more point in the same set), so spectators see it too; removing points doesn't trigger it
+    announceScoredPoints() {
+        const { teamA, teamB, currentSet } = this.gameState;
+        const previous = this.lastShownScores;
 
-        setColor('teamAName', this.gameState.teamA.score);
-        setColor('teamBName', this.gameState.teamB.score);
+        if (previous && previous.set === currentSet) {
+            if (teamA.score === previous.a + 1) this.scrollTeamName('teamAName');
+            if (teamB.score === previous.b + 1) this.scrollTeamName('teamBName');
+        }
+
+        this.lastShownScores = { a: teamA.score, b: teamB.score, set: currentSet };
+    }
+
+    // One full pass of the name from right to left in the highlight colour, then back to normal
+    scrollTeamName(inputId) {
+        const NAME_SCROLL_SPEED = 150; // px per second
+        const input = document.getElementById(inputId);
+
+        if (document.activeElement === input) return; // being edited
+
+        // Reduced motion: no movement, just show the highlight colour for a moment
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            this.nameHighlightTimers = this.nameHighlightTimers || {};
+            clearTimeout(this.nameHighlightTimers[inputId]);
+            input.classList.add('is-highlighted');
+            this.nameHighlightTimers[inputId] = setTimeout(() => {
+                input.classList.remove('is-highlighted');
+            }, 1500);
+            return;
+        }
+
+        // The input text can't be animated, so a copy scrolls over it while it's hidden
+        const container = input.parentElement;
+        let overlay = container.querySelector('.team-name-scroll');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'team-name-scroll';
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.appendChild(document.createElement('span'));
+            container.appendChild(overlay);
+        }
+
+        // Cover the inside of the input (it can change size with the screen)
+        Object.assign(overlay.style, {
+            left: `${input.offsetLeft + input.clientLeft}px`,
+            top: `${input.offsetTop + input.clientTop}px`,
+            width: `${input.clientWidth}px`,
+            height: `${input.clientHeight}px`
+        });
+
+        const text = overlay.firstChild;
+        text.textContent = input.value;
+        text.style.font = getComputedStyle(input).font;
+
+        this.nameAnimations = this.nameAnimations || {};
+        this.nameAnimations[inputId]?.cancel(); // a new point restarts the pass
+
+        input.classList.add('is-scrolling');
+        overlay.classList.add('active');
+
+        const start = overlay.clientWidth;
+        const end = -text.offsetWidth;
+        const animation = text.animate(
+            [{ transform: `translateX(${start}px)` }, { transform: `translateX(${end}px)` }],
+            { duration: ((start - end) / NAME_SCROLL_SPEED) * 1000, easing: 'linear' }
+        );
+        this.nameAnimations[inputId] = animation;
+
+        animation.onfinish = () => {
+            input.classList.remove('is-scrolling');
+            overlay.classList.remove('active');
+        };
     }
 
     updateSetHistory() {
