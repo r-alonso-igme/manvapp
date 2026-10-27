@@ -203,6 +203,51 @@ class VolleyballScoreboard {
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+
+        // Scroll team names that don't fit in their box
+        this.startNameScroll(document.getElementById('teamAName'));
+        this.startNameScroll(document.getElementById('teamBName'));
+    }
+
+    // Moves the text of an overflowing input back and forth (paused while the user edits it)
+    startNameScroll(input) {
+        const SPEED = 0.5;          // px per frame (~30 px/s)
+        const PAUSE_FRAMES = 90;    // ~1.5 s pause at each end
+        let position = 0;
+        let direction = 1;
+        let pause = PAUSE_FRAMES;
+
+        input.addEventListener('blur', () => {
+            position = 0;
+            direction = 1;
+            pause = PAUSE_FRAMES;
+        });
+
+        const step = () => {
+            const maxScroll = input.scrollWidth - input.clientWidth;
+
+            if (document.activeElement === input) {
+                // The user is editing: leave the scroll where the caret puts it
+            } else if (maxScroll <= 0) {
+                position = 0;
+                input.scrollLeft = 0;
+            } else if (pause > 0) {
+                pause--;
+                input.scrollLeft = position;
+            } else {
+                position += direction * SPEED;
+                if (position >= maxScroll || position <= 0) {
+                    position = Math.min(Math.max(position, 0), maxScroll);
+                    direction = -direction;
+                    pause = PAUSE_FRAMES;
+                }
+                input.scrollLeft = position;
+            }
+
+            requestAnimationFrame(step);
+        };
+
+        requestAnimationFrame(step);
     }
 
     addPoint(team) {
@@ -443,6 +488,7 @@ class VolleyballScoreboard {
         document.getElementById('timeoutActive').checked = this.gameState.timeoutActive;
 
         this.updateTimeoutLabels();
+        this.updateNameColors();
 
         // Update set history and game status
         this.updateSetHistory();
@@ -452,6 +498,22 @@ class VolleyballScoreboard {
     updateTimeoutLabels() {
         document.getElementById('teamATimeoutLabel').textContent = this.gameState.teamA.name;
         document.getElementById('teamBTimeoutLabel').textContent = this.gameState.teamB.name;
+    }
+
+    // Each point changes the team name colour (derived from the score, so undo and spectators match)
+    updateNameColors() {
+        const NAME_COLORS = 6; // must match the .team-input[data-color] rules in styles.css
+        const setColor = (inputId, score) => {
+            const input = document.getElementById(inputId);
+            if (score > 0) {
+                input.dataset.color = (score - 1) % NAME_COLORS;
+            } else {
+                delete input.dataset.color;
+            }
+        };
+
+        setColor('teamAName', this.gameState.teamA.score);
+        setColor('teamBName', this.gameState.teamB.score);
     }
 
     updateSetHistory() {

@@ -386,6 +386,21 @@ body::after {
     border-color: var(--primary-color);
 }
 
+/* Team name colour changes with every point (set from script.js, 6 colours) */
+.team-input[data-color="0"] { color: #e64b2a; }
+.team-input[data-color="1"] { color: #2563eb; }
+.team-input[data-color="2"] { color: #059669; }
+.team-input[data-color="3"] { color: #7c3aed; }
+.team-input[data-color="4"] { color: #db2777; }
+.team-input[data-color="5"] { color: #b45309; }
+
+[data-theme="dark"] .team-input[data-color="0"] { color: #ff7a45; }
+[data-theme="dark"] .team-input[data-color="1"] { color: #60a5fa; }
+[data-theme="dark"] .team-input[data-color="2"] { color: #34d399; }
+[data-theme="dark"] .team-input[data-color="3"] { color: #a78bfa; }
+[data-theme="dark"] .team-input[data-color="4"] { color: #f472b6; }
+[data-theme="dark"] .team-input[data-color="5"] { color: #fbbf24; }
+
 .score-display {
     margin: 0.25rem 0 0.5rem;
     padding: 0.15rem 0;
