@@ -549,13 +549,25 @@ body::after {
     text-align: center;
 }
 
+/* Max sets selector inline in the status pill: "... Set 1 de [5]" */
 .match-type select {
-    padding: 0.5rem;
-    border: 2px solid var(--border-color);
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    background: var(--white);
-    color: var(--text-dark);
+    padding: 0.1rem 0.3rem;
+    border: 1px solid currentColor;
+    border-radius: 0.4rem;
+    font-size: inherit;
+    font-weight: inherit;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.match-type select option {
+    color: #1e293b;
+    background: #ffffff;
+}
+
+.match-type[hidden] {
+    display: none;
 }
 
 .game-controls,
@@ -789,10 +801,8 @@ body::after {
     color: #3b82f6;
 }
 
-/* Shown above the match type selector, where the current set used to be */
 .game-status {
     text-align: center;
-    margin-bottom: 0.75rem;
 }
 
 .status-text {
@@ -895,6 +905,11 @@ body::after {
     .plus-one {
         font-size: 2.25rem;
         right: 4%;
+    }
+
+    /* Keep "Partido en Progreso - Set X de [5]" on one line */
+    .status-text {
+        padding: 0.75rem 1rem;
     }
 
     .score-btn.minus {

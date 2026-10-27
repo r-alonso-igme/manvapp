@@ -135,15 +135,17 @@
                 <div class="vs-divider">
                     <!-- <div class="vs-text">VS</div> -->
                     <div class="match-info">
-                        <!-- Estado del Juego (incluye el set actual) -->
+                        <!-- Estado del Juego: "Partido en Progreso - Set X de [5|3]" -->
                         <div class="game-status" id="gameStatus">
-                            <div class="status-text">Partido en Progreso</div>
-                        </div>
-                        <div class="match-type">
-                            <select id="matchType">
-                                <option value="5" selected="selected">Mejor de 5</option>
-                                <option value="3">Mejor de 3</option>
-                            </select>
+                            <div class="status-text">
+                                <span class="status-label">Partido en Progreso</span>
+                                <span class="match-type">de
+                                    <select id="matchType" aria-label="Número máximo de sets">
+                                        <option value="5" selected="selected">5</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

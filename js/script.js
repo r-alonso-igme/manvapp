@@ -522,15 +522,20 @@ class VolleyballScoreboard {
     updateGameStatus() {
         const statusElement = document.getElementById('gameStatus');
         const statusText = statusElement.querySelector('.status-text');
-        
+        const statusLabel = statusElement.querySelector('.status-label');
+        // The "de [5|3]" selector is only shown while the match is in progress
+        const matchType = statusElement.querySelector('.match-type');
+
         if (this.gameState.gameEnded) {
-            const winner = this.gameState.teamA.sets > this.gameState.teamB.sets ? 
+            const winner = this.gameState.teamA.sets > this.gameState.teamB.sets ?
                           this.gameState.teamA.name : this.gameState.teamB.name;
-            statusText.textContent = `🏆 ¡${winner} gana el partido!`;
+            statusLabel.textContent = `🏆 ¡${winner} gana el partido!`;
             statusText.className = 'status-text match-won';
+            matchType.hidden = true;
         } else {
-            statusText.textContent = `Partido en Progreso - Set ${this.gameState.currentSet}`;
+            statusLabel.textContent = `Partido en Progreso - Set ${this.gameState.currentSet}`;
             statusText.className = 'status-text in-progress';
+            matchType.hidden = false;
         }
     }
 
