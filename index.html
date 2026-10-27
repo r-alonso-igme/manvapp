@@ -135,7 +135,10 @@
                 <div class="vs-divider">
                     <!-- <div class="vs-text">VS</div> -->
                     <div class="match-info">
-                        <div class="current-set">Set <span id="currentSet">1</span></div>
+                        <!-- Estado del Juego (incluye el set actual) -->
+                        <div class="game-status" id="gameStatus">
+                            <div class="status-text">Partido en Progreso</div>
+                        </div>
                         <div class="match-type">
                             <select id="matchType">
                                 <option value="5" selected="selected">Mejor de 5</option>
@@ -151,11 +154,6 @@
                     <div class="history-container" id="setHistory">
                         <!-- El historial de sets será llenado por JavaScript -->
                     </div>
-                </div>
-
-                <!-- Estado del Juego -->
-                <div class="game-status" id="gameStatus">
-                    <div class="status-text">Partido en Progreso</div>
                 </div>
 
                 <!-- Atajos de Teclado -->

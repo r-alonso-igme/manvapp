@@ -428,10 +428,9 @@ class VolleyballScoreboard {
         // Update sets
         document.getElementById('teamASets').textContent = this.gameState.teamA.sets;
         document.getElementById('teamBSets').textContent = this.gameState.teamB.sets;
-        
-        // Update current set
-        document.getElementById('currentSet').textContent = this.gameState.currentSet;
-        
+
+        // (The current set is shown in the game status, see updateGameStatus)
+
         // Update team names in inputs
         document.getElementById('teamAName').value = this.gameState.teamA.name;
         document.getElementById('teamBName').value = this.gameState.teamB.name;

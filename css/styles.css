@@ -565,13 +565,6 @@ body::after {
     text-align: center;
 }
 
-.current-set {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-dark);
-}
-
 .match-type select {
     padding: 0.5rem;
     border: 2px solid var(--border-color);
@@ -816,13 +809,10 @@ body::after {
     color: #3b82f6;
 }
 
+/* Shown above the match type selector, where the current set used to be */
 .game-status {
     text-align: center;
-    padding: 1rem;
-    margin: 2rem 0;
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-bottom: 0.75rem;
 }
 
 .status-text {
