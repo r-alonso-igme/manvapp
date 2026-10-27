@@ -20,7 +20,9 @@
     --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --score-font: 'Bebas Neue', 'Impact', 'Arial Black', 'Oswald', sans-serif;
     --transition: all 0.3s ease;
-    
+    /* Space between the header, the offline/online panels and the scoreboard */
+    --block-gap: 1rem;
+
     /* Tiger background variables */
     --tiger-bg-opacity: 0.45;
     --tiger-bg-blur: 0px;
@@ -109,10 +111,9 @@ body::after {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow);
-    position: fixed;
+    /* Sticky: stays on top while scrolling but takes its own space, so content starts right below it */
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
     z-index: 1000;
 }
 
@@ -271,10 +272,6 @@ body::after {
 }
 
 /* Main Content */
-.main {
-    margin-top: 80px;
-}
-
 
 
 /* Buttons */
@@ -307,11 +304,11 @@ body::after {
 
 /* Keep the offline/online panels close to the scoreboard below them */
 #scoreboard_offline {
-    padding-bottom: 0;
+    padding: var(--block-gap) 0 0;
 }
 
 #scoreboard {
-    padding-top: 0.5rem;
+    padding-top: 0;
 }
 
 .section-title {
@@ -386,7 +383,6 @@ body::after {
     justify-content: center;
     gap: 1rem;
     border-radius: 1rem;
-    padding: 2rem;
     max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
@@ -588,7 +584,9 @@ body::after {
 .game-controls,
 .streaming-section {
     display: block;
-    margin-bottom: 2rem;
+    /* Same width and spacing as the scoreboard below */
+    max-width: 1000px;
+    margin: 0 auto var(--block-gap);
     /* Same card as .team-section */
     background: rgba(255, 255, 255, 0.95);
     padding: 1rem 1.5rem 1.25rem;
@@ -882,7 +880,6 @@ body::after {
     /* Cards almost edge to edge and close together on mobile */
     .scoreboard {
         gap: 0.5rem;
-        padding: 0;
     }
 
     .team-section {
@@ -1030,8 +1027,6 @@ body::after {
 
 /* Streaming Components */
 .streaming-section {
-    margin: 0 auto 1rem auto;
-    max-width: 1000px;
     text-align: center;
     overflow: visible;
     position: relative;
