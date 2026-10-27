@@ -463,7 +463,10 @@ class VolleyballScoreboard {
         const previous = this.lastShownScores;
 
         if (previous && previous.set === currentSet) {
-            if (teamA.score === previous.a + 1) this.showPlusOne('teamAScore');
+            if (teamA.score === previous.a + 1) {
+                this.showPlusOne('teamAScore');
+                this.celebrateInHeader(); // Manzanares Voley (team A) scored
+            }
             if (teamB.score === previous.b + 1) this.showPlusOne('teamBScore');
         }
 
@@ -479,6 +482,14 @@ class VolleyballScoreboard {
         plusOne.setAttribute('aria-hidden', 'true');
         plusOne.addEventListener('animationend', () => plusOne.remove());
         scoreDisplay.appendChild(plusOne);
+    }
+
+    // Heartbeat + ball bounce in the header (CSS animations on .nav-brand.celebrate)
+    celebrateInHeader() {
+        const brand = document.getElementById('navBrand');
+        brand.classList.remove('celebrate');
+        void brand.offsetWidth; // restart the animation if a point comes before it ends
+        brand.classList.add('celebrate');
     }
 
     updateSetHistory() {
