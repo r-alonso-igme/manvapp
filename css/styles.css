@@ -149,19 +149,40 @@ body::after {
     width: auto;
 }
 
+/* Lettering styled after the club logo: heavy condensed "MANZANARES" + outlined script "voley" */
 .nav-title {
-    font-family: var(--score-font);
-    font-size: 1.75rem;
-    font-weight: 400;
-    letter-spacing: 0.06em;
+    display: flex;
+    flex-direction: column;
     line-height: 1;
-    color: var(--primary-color);
     margin: 0;
     white-space: nowrap;
 }
 
+.nav-title-main {
+    font-family: 'Anton', var(--score-font);
+    font-size: 1.6rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-dark);
+}
+
+.nav-title-script {
+    align-self: flex-end;
+    margin-top: -0.55em;
+    margin-right: -0.3em;
+    font-family: 'Kaushan Script', cursive;
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--white);
+    -webkit-text-stroke: 2px var(--text-dark); /* half of it is hidden under the fill */
+    paint-order: stroke fill;
+    transform: rotate(-6deg);
+}
+
 .nav-ball {
     display: inline-block;
+    margin-left: 0.35rem; /* room for "voley", which sticks out to the right */
     font-size: 1.5rem;
     line-height: 1;
 }
@@ -941,8 +962,12 @@ body::after {
         height: 1.9rem;
     }
 
-    .nav-title {
-        font-size: 1.35rem;
+    .nav-title-main {
+        font-size: 1.3rem;
+    }
+
+    .nav-title-script {
+        font-size: 1.4rem;
     }
 
     .nav-ball {
