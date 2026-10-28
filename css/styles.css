@@ -333,6 +333,82 @@ body::after {
 
 
 
+/* Team roster: small club shirts with initials and number */
+.roster {
+    --shirt-size: 72px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--block-gap) 1rem;
+}
+
+.roster-title {
+    flex-basis: 100%;
+    text-align: center;
+    color: var(--text-dark);
+}
+
+/* Columns only split the shirts on wide screens; here they flow as one wrapped row */
+.roster-column {
+    display: contents;
+    list-style: none;
+}
+
+.roster-shirt {
+    width: var(--shirt-size);
+    height: var(--shirt-size);
+    background: url('../images/mini-shirt.svg') center / contain no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: calc(var(--shirt-size) * 0.12);
+    color: #fff;
+    line-height: 1;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+
+.roster-initials {
+    font-size: calc(var(--shirt-size) * 0.13);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #ffbf69;
+}
+
+.roster-number {
+    font-family: 'Anton', var(--score-font);
+    font-size: calc(var(--shirt-size) * 0.32);
+}
+
+/* Enough room beside the 1200px container: one fixed column on each side */
+@media (min-width: 1440px) {
+    .roster {
+        --shirt-size: min(80px, 10vh);
+        position: fixed;
+        /* Below the sticky header */
+        inset: 80px 0 0;
+        max-width: none;
+        padding: 0 calc((100vw - 1200px) / 4 - var(--shirt-size) / 2);
+        justify-content: space-between;
+        align-items: center;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .roster-title {
+        display: none;
+    }
+
+    .roster-column {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
 /* Footer */
 .footer {
     background: #020817;

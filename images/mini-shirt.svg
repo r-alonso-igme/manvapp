@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Small club shirt for the roster: black body, orange sides and cuffs, red collar -->
+  <path d="M34 6 L8 20 L16 42 L27 37 L27 95 L73 95 L73 37 L84 42 L92 20 L66 6 Q50 16 34 6 Z" fill="#141414"/>
+  <path d="M27 37 L27 95 L36 95 L33 40 Z M73 37 L73 95 L64 95 L67 40 Z" fill="#ff6a1a"/>
+  <path d="M8 20 L11 28 L23 22 L20 13 Z M92 20 L89 28 L77 22 L80 13 Z" fill="#141414"/>
+  <path d="M13 34 L16 42 L27 37 L25 29 Z M87 34 L84 42 L73 37 L75 29 Z" fill="#ff6a1a"/>
+  <path d="M34 6 Q50 16 66 6 L61 4 Q50 11 39 4 Z" fill="#e8213a"/>
+  <path d="M34 6 L8 20 L16 42 L27 37 L27 95 L73 95 L73 37 L84 42 L92 20 L66 6 Q50 16 34 6 Z" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.5" stroke-linejoin="round"/>
+</svg>
