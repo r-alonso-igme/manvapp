@@ -23,8 +23,9 @@
     /* Space between the header, the offline/online panels and the scoreboard */
     --block-gap: 1rem;
 
-    /* Page background variables */
-    --page-bg-opacity: 0.45;
+    /* Page background variables: carnations in light theme, like the club's carnation shirt */
+    --page-bg-image: url('../images/carnations-pattern.svg');
+    --page-bg-opacity: 0.6;
     --page-bg-blur: 0px;
     --page-bg-brightness: 1.1;
     --page-bg-contrast: 1;
@@ -43,7 +44,8 @@
     --border-color: #334155;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     
-    /* Page background adjustments for dark theme */
+    /* Page background adjustments for dark theme: cats, like the black club shirt */
+    --page-bg-image: url('../images/cats-pattern.svg');
     --page-bg-opacity: 0.4;
     --page-bg-blur: 0px;
     --page-bg-brightness: 0.85;
@@ -60,8 +62,8 @@ body {
     line-height: 1.6;
     color: var(--text-dark);
     background-color: var(--white);
-    /* Repeating cat faces, like the club shirt */
-    background-image: url('../images/cats-pattern.svg');
+    /* Repeating pattern from the club shirts (see --page-bg-image) */
+    background-image: var(--page-bg-image);
     background-size: 400px;
     background-position: center;
     background-attachment: fixed;
@@ -98,7 +100,7 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../images/cats-pattern.svg');
+    background-image: var(--page-bg-image);
     background-size: 400px;
     background-position: center;
     background-attachment: fixed;
@@ -255,6 +257,11 @@ body::after {
     margin-left: 1rem;
 }
 
+.theme-icon {
+    width: 75%;
+    height: 75%;
+}
+
 .theme-toggle:hover {
     background: var(--border-color);
     transform: scale(1.1);
@@ -369,6 +376,19 @@ body::after {
     color: #fff;
     line-height: 1;
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+
+/* Black shirts in dark theme, carnation shirts in light theme;
+   --alt players (4 and 99) wear the other one */
+[data-theme="dark"] .roster-shirt--alt,
+:root:not([data-theme="dark"]) .roster-shirt:not(.roster-shirt--alt) {
+    background-image: url('../images/mini-shirt-carnation.svg');
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .roster-shirt--alt .roster-initials,
+:root:not([data-theme="dark"]) .roster-shirt:not(.roster-shirt--alt) .roster-initials {
+    color: #fff;
 }
 
 .roster-initials {

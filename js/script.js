@@ -962,7 +962,10 @@ function initializeTheme() {
 
 function updateThemeIcon(theme) {
     const themeToggle = document.getElementById('themeToggle');
-    themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    // Shows the theme it switches to: a carnation for light, a black cat for dark
+    themeToggle.innerHTML = theme === 'dark'
+        ? '<img src="images/icon-carnation.svg" alt="" class="theme-icon">'
+        : '<img src="images/icon-cat.svg" alt="" class="theme-icon">';
     themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
 }
 
