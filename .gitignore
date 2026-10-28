@@ -57,3 +57,5 @@ temp/
 # GitHub Pages build output
 _site/
 
+# Claude Code local settings
+.claude/
